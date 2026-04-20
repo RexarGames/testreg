@@ -44,6 +44,7 @@
       opacity: 0.8;
       font-size: 14px;
       margin-top: 10px;
+      word-break: break-all;
     }
     .status {
       margin-top: 12px;
@@ -59,7 +60,7 @@
 <body>
   <div class="card">
     <h1>Анонимное сохранение</h1>
-    <p>Пользователь входит без логина. Каждый видит только свои данные.</p>
+    <p>Каждый пользователь входит анонимно и видит только свои данные.</p>
 
     <textarea id="content" placeholder="Введи текст..."></textarea>
     <br />
@@ -72,8 +73,8 @@
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-    const SUPABASE_URL = "YOUR_SUPABASE_URL";
-    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+    const SUPABASE_URL = "https://tsfjqtdoxfmxadxuivpg.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_yXZd7wd5aVNpuxjt7-ax8g_aejudNte";
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
