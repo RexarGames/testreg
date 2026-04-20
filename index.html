@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Anon Save Demo</title>
+  <title>Аккаунт и настройки</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 800px;
+      max-width: 900px;
       margin: 40px auto;
       padding: 0 16px;
       background: #111;
@@ -18,20 +18,24 @@
       border: 1px solid #333;
       border-radius: 14px;
       padding: 18px;
+      margin-bottom: 16px;
     }
-    textarea {
+    input, select, textarea {
       width: 100%;
-      min-height: 220px;
-      padding: 12px;
+      padding: 10px;
       border-radius: 10px;
       border: 1px solid #444;
       background: #0f0f0f;
       color: #eee;
-      resize: vertical;
       box-sizing: border-box;
+      margin-top: 6px;
+      margin-bottom: 12px;
+    }
+    textarea {
+      min-height: 120px;
+      resize: vertical;
     }
     button {
-      margin-top: 12px;
       padding: 10px 16px;
       border: 0;
       border-radius: 10px;
@@ -39,35 +43,135 @@
       background: #fff;
       color: #111;
       font-weight: bold;
+      margin-right: 8px;
+      margin-top: 8px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .status {
+      min-height: 20px;
+      margin-top: 10px;
+      font-size: 14px;
     }
     .muted {
       opacity: 0.8;
       font-size: 14px;
-      margin-top: 10px;
       word-break: break-all;
     }
-    .status {
-      margin-top: 12px;
-      min-height: 20px;
+    .hidden {
+      display: none;
     }
-    code {
-      background: #222;
-      padding: 2px 6px;
-      border-radius: 6px;
+    label {
+      display: block;
+      margin-top: 4px;
+      font-weight: bold;
+    }
+    .checkbox {
+      width: auto;
+      margin-right: 8px;
+    }
+    @media (max-width: 700px) {
+      .row {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Анонимное сохранение</h1>
-    <p>Каждый пользователь входит анонимно и видит только свои данные.</p>
+  <div class="card" id="authCard">
+    <h1>Регистрация и вход</h1>
+    <p class="muted">Логин в этом варианте = email</p>
 
-    <textarea id="content" placeholder="Введи текст..."></textarea>
-    <br />
-    <button id="saveBtn">Сохранить</button>
+    <div class="row">
+      <div>
+        <h3>Регистрация</h3>
+        <label for="regEmail">Email</label>
+        <input id="regEmail" type="email" placeholder="you@example.com" />
 
-    <div class="status" id="status"></div>
-    <div class="muted">Твой user id: <code id="uid">загрузка...</code></div>
+        <label for="regPassword">Пароль</label>
+        <input id="regPassword" type="password" placeholder="Минимум 6 символов" />
+
+        <button id="registerBtn">Зарегистрироваться</button>
+      </div>
+
+      <div>
+        <h3>Вход</h3>
+        <label for="loginEmail">Email</label>
+        <input id="loginEmail" type="email" placeholder="you@example.com" />
+
+        <label for="loginPassword">Пароль</label>
+        <input id="loginPassword" type="password" placeholder="Пароль" />
+
+        <button id="loginBtn">Войти</button>
+      </div>
+    </div>
+
+    <div class="status" id="authStatus"></div>
+  </div>
+
+  <div class="card hidden" id="appCard">
+    <h2>Твой аккаунт</h2>
+    <div class="muted">Email: <span id="userEmail">—</span></div>
+    <div class="muted">User ID: <span id="userId">—</span></div>
+
+    <hr style="border-color:#333; margin:16px 0;" />
+
+    <h2>Настройки</h2>
+
+    <label for="nickname">Никнейм</label>
+    <input id="nickname" type="text" placeholder="Например: RexarPlayer" />
+
+    <div class="row">
+      <div>
+        <label for="theme">Тема</label>
+        <select id="theme">
+          <option value="dark">Тёмная</option>
+          <option value="light">Светлая</option>
+          <option value="neon">Неон</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="language">Язык</label>
+        <select id="language">
+          <option value="ru">Русский</option>
+          <option value="en">English</option>
+          <option value="zh">中文</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="difficulty">Сложность</label>
+        <select id="difficulty">
+          <option value="easy">Лёгкая</option>
+          <option value="normal">Нормальная</option>
+          <option value="hard">Сложная</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="musicVolume">Громкость музыки: <span id="volumeValue">70</span>%</label>
+        <input id="musicVolume" type="range" min="0" max="100" value="70" />
+      </div>
+    </div>
+
+    <label>
+      <input id="soundEnabled" class="checkbox" type="checkbox" checked />
+      Включить звук
+    </label>
+
+    <label for="aboutMe">Описание / заметка</label>
+    <textarea id="aboutMe" placeholder="Напиши что-нибудь, чтобы проверить сохранение..."></textarea>
+
+    <button id="saveBtn">Сохранить настройки</button>
+    <button id="logoutBtn">Выйти</button>
+
+    <div class="status" id="appStatus"></div>
   </div>
 
   <script type="module">
@@ -78,86 +182,251 @@
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const contentEl = document.getElementById("content");
+    const authCard = document.getElementById("authCard");
+    const appCard = document.getElementById("appCard");
+
+    const authStatus = document.getElementById("authStatus");
+    const appStatus = document.getElementById("appStatus");
+
+    const regEmail = document.getElementById("regEmail");
+    const regPassword = document.getElementById("regPassword");
+
+    const loginEmail = document.getElementById("loginEmail");
+    const loginPassword = document.getElementById("loginPassword");
+
+    const registerBtn = document.getElementById("registerBtn");
+    const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
     const saveBtn = document.getElementById("saveBtn");
-    const statusEl = document.getElementById("status");
-    const uidEl = document.getElementById("uid");
 
-    let currentUser = null;
+    const userEmail = document.getElementById("userEmail");
+    const userId = document.getElementById("userId");
 
-    function setStatus(text, isError = false) {
-      statusEl.textContent = text;
-      statusEl.style.color = isError ? "#ff7b7b" : "#9effa1";
+    const nickname = document.getElementById("nickname");
+    const theme = document.getElementById("theme");
+    const language = document.getElementById("language");
+    const difficulty = document.getElementById("difficulty");
+    const soundEnabled = document.getElementById("soundEnabled");
+    const musicVolume = document.getElementById("musicVolume");
+    const volumeValue = document.getElementById("volumeValue");
+    const aboutMe = document.getElementById("aboutMe");
+
+    function setAuthStatus(text, isError = false) {
+      authStatus.textContent = text;
+      authStatus.style.color = isError ? "#ff7b7b" : "#9effa1";
     }
 
-    async function ensureAnonymousUser() {
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) throw sessionError;
-
-      if (sessionData.session?.user) {
-        currentUser = sessionData.session.user;
-        return currentUser;
-      }
-
-      const { data, error } = await supabase.auth.signInAnonymously();
-      if (error) throw error;
-
-      currentUser = data.user;
-      return currentUser;
+    function setAppStatus(text, isError = false) {
+      appStatus.textContent = text;
+      appStatus.style.color = isError ? "#ff7b7b" : "#9effa1";
     }
 
-    async function loadMySave() {
-      const { data, error } = await supabase
-        .from("user_saves")
-        .select("content")
-        .eq("user_id", currentUser.id)
-        .maybeSingle();
-
-      if (error) throw error;
-
-      if (data) {
-        contentEl.value = data.content ?? "";
-        setStatus("Сохранение загружено.");
-      } else {
-        setStatus("Сохранения пока нет.");
-      }
+    function showAuth() {
+      authCard.classList.remove("hidden");
+      appCard.classList.add("hidden");
     }
 
-    async function saveMyData() {
+    function showApp() {
+      authCard.classList.add("hidden");
+      appCard.classList.remove("hidden");
+    }
+
+    function fillDefaults() {
+      nickname.value = "";
+      theme.value = "dark";
+      language.value = "ru";
+      difficulty.value = "normal";
+      soundEnabled.checked = true;
+      musicVolume.value = 70;
+      volumeValue.textContent = "70";
+      aboutMe.value = "";
+    }
+
+    musicVolume.addEventListener("input", () => {
+      volumeValue.textContent = musicVolume.value;
+    });
+
+    async function register() {
       try {
-        setStatus("Сохранение...");
+        setAuthStatus("Регистрация...");
+        const email = regEmail.value.trim();
+        const password = regPassword.value;
+
+        if (!email || !password) {
+          setAuthStatus("Заполни email и пароль.", true);
+          return;
+        }
+
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password
+        });
+
+        if (error) throw error;
+
+        if (data.session) {
+          setAuthStatus("Регистрация успешна. Ты уже вошёл.");
+          await handleLoggedIn(data.session.user);
+        } else {
+          setAuthStatus("Аккаунт создан. Проверь email, если у тебя включено подтверждение почты.");
+        }
+      } catch (err) {
+        console.error(err);
+        setAuthStatus("Ошибка регистрации: " + err.message, true);
+      }
+    }
+
+    async function login() {
+      try {
+        setAuthStatus("Вход...");
+        const email = loginEmail.value.trim();
+        const password = loginPassword.value;
+
+        if (!email || !password) {
+          setAuthStatus("Заполни email и пароль.", true);
+          return;
+        }
+
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if (error) throw error;
+
+        setAuthStatus("Вход выполнен.");
+        await handleLoggedIn(data.user);
+      } catch (err) {
+        console.error(err);
+        setAuthStatus("Ошибка входа: " + err.message, true);
+      }
+    }
+
+    async function logout() {
+      try {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+
+        showAuth();
+        fillDefaults();
+        setAuthStatus("Ты вышел из аккаунта.");
+        setAppStatus("");
+      } catch (err) {
+        console.error(err);
+        setAppStatus("Ошибка выхода: " + err.message, true);
+      }
+    }
+
+    async function loadSettings(user) {
+      try {
+        setAppStatus("Загрузка настроек...");
+
+        const { data, error } = await supabase
+          .from("user_settings")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (error) throw error;
+
+        if (!data) {
+          fillDefaults();
+          setAppStatus("Настройки не найдены. Будут использованы значения по умолчанию.");
+          return;
+        }
+
+        nickname.value = data.nickname ?? "";
+        theme.value = data.theme ?? "dark";
+        language.value = data.language ?? "ru";
+        difficulty.value = data.difficulty ?? "normal";
+        soundEnabled.checked = data.sound_enabled ?? true;
+        musicVolume.value = data.music_volume ?? 70;
+        volumeValue.textContent = String(data.music_volume ?? 70);
+        aboutMe.value = data.about_me ?? "";
+
+        setAppStatus("Настройки загружены.");
+      } catch (err) {
+        console.error(err);
+        setAppStatus("Ошибка загрузки: " + err.message, true);
+      }
+    }
+
+    async function saveSettings() {
+      try {
+        setAppStatus("Сохранение...");
+
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        if (userError) throw userError;
+
+        const user = userData.user;
+        if (!user) {
+          setAppStatus("Сначала войди в аккаунт.", true);
+          return;
+        }
+
         const payload = {
-          user_id: currentUser.id,
-          content: contentEl.value,
+          user_id: user.id,
+          nickname: nickname.value.trim(),
+          theme: theme.value,
+          language: language.value,
+          sound_enabled: soundEnabled.checked,
+          music_volume: Number(musicVolume.value),
+          difficulty: difficulty.value,
+          about_me: aboutMe.value,
           updated_at: new Date().toISOString()
         };
 
         const { error } = await supabase
-          .from("user_saves")
-          .upsert(payload, { onConflict: "user_id" });
+          .from("user_settings")
+          .upsert(payload);
 
         if (error) throw error;
 
-        setStatus("Сохранено.");
+        setAppStatus("Настройки сохранены в аккаунт.");
       } catch (err) {
         console.error(err);
-        setStatus("Ошибка сохранения: " + err.message, true);
+        setAppStatus("Ошибка сохранения: " + err.message, true);
       }
+    }
+
+    async function handleLoggedIn(user) {
+      userEmail.textContent = user.email ?? "—";
+      userId.textContent = user.id ?? "—";
+      showApp();
+      await loadSettings(user);
     }
 
     async function init() {
       try {
-        setStatus("Инициализация...");
-        await ensureAnonymousUser();
-        uidEl.textContent = currentUser.id;
-        await loadMySave();
+        fillDefaults();
+
+        const { data, error } = await supabase.auth.getSession();
+        if (error) throw error;
+
+        if (data.session?.user) {
+          await handleLoggedIn(data.session.user);
+        } else {
+          showAuth();
+        }
+
+        supabase.auth.onAuthStateChange(async (event, session) => {
+          if (session?.user) {
+            await handleLoggedIn(session.user);
+          } else {
+            showAuth();
+          }
+        });
       } catch (err) {
         console.error(err);
-        setStatus("Ошибка запуска: " + err.message, true);
+        setAuthStatus("Ошибка инициализации: " + err.message, true);
       }
     }
 
-    saveBtn.addEventListener("click", saveMyData);
+    registerBtn.addEventListener("click", register);
+    loginBtn.addEventListener("click", login);
+    logoutBtn.addEventListener("click", logout);
+    saveBtn.addEventListener("click", saveSettings);
+
     init();
   </script>
 </body>
