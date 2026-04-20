@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anon Save Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 16px;
+      background: #111;
+      color: #eee;
+    }
+    .card {
+      background: #1b1b1b;
+      border: 1px solid #333;
+      border-radius: 14px;
+      padding: 18px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 220px;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #444;
+      background: #0f0f0f;
+      color: #eee;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 12px;
+      padding: 10px 16px;
+      border: 0;
+      border-radius: 10px;
+      cursor: pointer;
+      background: #fff;
+      color: #111;
+      font-weight: bold;
+    }
+    .muted {
+      opacity: 0.8;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    .status {
+      margin-top: 12px;
+      min-height: 20px;
+    }
+    code {
+      background: #222;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Анонимное сохранение</h1>
+    <p>Пользователь входит без логина. Каждый видит только свои данные.</p>
+
+    <textarea id="content" placeholder="Введи текст..."></textarea>
+    <br />
+    <button id="saveBtn">Сохранить</button>
+
+    <div class="status" id="status"></div>
+    <div class="muted">Твой user id: <code id="uid">загрузка...</code></div>
+  </div>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+    const SUPABASE_URL = "YOUR_SUPABASE_URL";
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const contentEl = document.getElementById("content");
+    const saveBtn = document.getElementById("saveBtn");
+    const statusEl = document.getElementById("status");
+    const uidEl = document.getElementById("uid");
+
+    let currentUser = null;
+
+    function setStatus(text, isError = false) {
+      statusEl.textContent = text;
+      statusEl.style.color = isError ? "#ff7b7b" : "#9effa1";
+    }
+
+    async function ensureAnonymousUser() {
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+
+      if (sessionData.session?.user) {
+        currentUser = sessionData.session.user;
+        return currentUser;
+      }
+
+      const { data, error } = await supabase.auth.signInAnonymously();
+      if (error) throw error;
+
+      currentUser = data.user;
+      return currentUser;
+    }
+
+    async function loadMySave() {
+      const { data, error } = await supabase
+        .from("user_saves")
+        .select("content")
+        .eq("user_id", currentUser.id)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        contentEl.value = data.content ?? "";
+        setStatus("Сохранение загружено.");
+      } else {
+        setStatus("Сохранения пока нет.");
+      }
+    }
+
+    async function saveMyData() {
+      try {
+        setStatus("Сохранение...");
+        const payload = {
+          user_id: currentUser.id,
+          content: contentEl.value,
+          updated_at: new Date().toISOString()
+        };
+
+        const { error } = await supabase
+          .from("user_saves")
+          .upsert(payload, { onConflict: "user_id" });
+
+        if (error) throw error;
+
+        setStatus("Сохранено.");
+      } catch (err) {
+        console.error(err);
+        setStatus("Ошибка сохранения: " + err.message, true);
+      }
+    }
+
+    async function init() {
+      try {
+        setStatus("Инициализация...");
+        await ensureAnonymousUser();
+        uidEl.textContent = currentUser.id;
+        await loadMySave();
+      } catch (err) {
+        console.error(err);
+        setStatus("Ошибка запуска: " + err.message, true);
+      }
+    }
+
+    saveBtn.addEventListener("click", saveMyData);
+    init();
+  </script>
+</body>
+</html>
