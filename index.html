@@ -384,6 +384,26 @@
       align-self: start;
     }
 
+    .unread-badge {
+      min-width: 22px;
+      height: 22px;
+      padding: 0 7px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #4ea4ff;
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 6px;
+      margin-left: auto;
+    }
+
+    .mobile-only {
+      display: none;
+    }
+
     .sidebar-footer {
       display: flex;
       gap: 10px;
@@ -603,8 +623,22 @@
       .auth-card { grid-template-columns: 1fr; }
       .auth-left { min-height: 420px; }
       .float-cards { position: static; margin-top: 24px; }
-      .app-shell { grid-template-columns: 1fr; }
-      .sidebar { grid-template-rows: auto auto minmax(180px, 280px) auto; }
+      .app-shell {
+        grid-template-columns: 1fr;
+        height: 100svh;
+        padding: 10px;
+      }
+      .sidebar, .main-panel {
+        height: calc(100svh - 20px);
+      }
+      body:not(.mobile-chat-open) .main-panel {
+        display: none;
+      }
+      body.mobile-chat-open .sidebar {
+        display: none;
+      }
+      .sidebar { grid-template-rows: auto auto minmax(180px, 1fr) auto; }
+      .mobile-only { display: inline-flex; }
       body { overflow: auto; }
     }
 
@@ -727,6 +761,7 @@
     <main class="main-panel glass">
       <div class="chat-topbar">
         <div class="chat-top-left">
+          <button id="mobileBackBtn" class="ghost-btn mobile-only">Назад</button>
           <div id="activeChatAvatar" class="avatar">C</div>
           <div>
             <div id="activeChatTitle" class="chat-main-title">Выбери чат</div>
@@ -859,6 +894,9 @@
       fileToSend: null,
       openModalId: null,
       autoRefresh: true,
+      globalPoller: null,
+      unreadCounts: {},
+      lastNotificationCheck: null,
     };
 
     const els = {
@@ -898,6 +936,7 @@
       clearFileBtn: document.getElementById('clearFileBtn'),
       sendBtn: document.getElementById('sendBtn'),
       toggleAutoRefreshBtn: document.getElementById('toggleAutoRefreshBtn'),
+      mobileBackBtn: document.getElementById('mobileBackBtn'),
       refreshChatsBtn: document.getElementById('refreshChatsBtn'),
       profileModal: document.getElementById('profileModal'),
       profileNickname: document.getElementById('profileNickname'),
@@ -990,7 +1029,9 @@
     function showAuthView() {
       els.authView.classList.remove('hidden');
       els.appView.classList.add('hidden');
+      document.body.classList.remove('mobile-chat-open');
       clearPoller();
+      clearGlobalPoller();
     }
 
     function showAppView() {
@@ -1005,6 +1046,83 @@
       }
     }
 
+    function clearGlobalPoller() {
+      if (state.globalPoller) {
+        clearInterval(state.globalPoller);
+        state.globalPoller = null;
+      }
+    }
+
+    function requestBrowserNotificationPermission() {
+      try {
+        if ('Notification' in window && Notification.permission === 'default') {
+          Notification.requestPermission().catch(() => {});
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function notifyIncoming(chatTitleText, bodyText) {
+      showToast(`Новое сообщение: ${chatTitleText}`);
+      try {
+        if ('Notification' in window && Notification.permission === 'granted' && document.hidden) {
+          new Notification(chatTitleText, { body: bodyText || 'Новое сообщение' });
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function checkIncomingMessages() {
+      try {
+        if (!state.user || !state.chats.length) return;
+        const ids = state.chats.map(c => c.id);
+        if (!ids.length) return;
+
+        const since = state.lastNotificationCheck || new Date().toISOString();
+        const { data, error } = await supabase
+          .from('messages')
+          .select('*')
+          .in('conversation_id', ids)
+          .gt('created_at', since)
+          .order('created_at', { ascending: true });
+
+        if (error) throw error;
+
+        if (data && data.length) {
+          for (const msg of data) {
+            if (msg.sender_id === state.user.id) continue;
+            if (state.activeChatId !== msg.conversation_id) {
+              state.unreadCounts[msg.conversation_id] = (state.unreadCounts[msg.conversation_id] || 0) + 1;
+            }
+            const chat = state.chats.find(c => c.id === msg.conversation_id);
+            const title = chat ? chatTitle(chat) : 'Messenger';
+            notifyIncoming(title, msg.body || msg.attachment_name || 'Новое сообщение');
+          }
+          state.lastNotificationCheck = data[data.length - 1].created_at;
+          renderChatList();
+          if (state.activeChatId) {
+            await loadMessages(state.activeChatId, false);
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function startGlobalPolling() {
+      clearGlobalPoller();
+      state.globalPoller = setInterval(async () => {
+        try {
+          await loadChats();
+          await checkIncomingMessages();
+        } catch (e) {
+          console.error(e);
+        }
+      }, 2000);
+    }
+
     function applyRefreshModeUi() {
       if (!els.toggleAutoRefreshBtn) return;
       els.toggleAutoRefreshBtn.textContent = state.autoRefresh ? 'Авто: вкл' : 'Авто: выкл';
@@ -1013,7 +1131,7 @@
     function startChatPolling() {
       clearPoller();
       if (!state.autoRefresh || !state.activeChatId) return;
-      state.poller = setInterval(() => loadMessages(state.activeChatId, false), 2000);
+      state.poller = setInterval(() => loadMessages(state.activeChatId, false), 1000);
     }
 
     async function registerUser() {
@@ -1139,6 +1257,9 @@
         renderSelfHeader();
         fillProfileModal();
         await loadChats();
+        requestBrowserNotificationPermission();
+        if (!state.lastNotificationCheck) state.lastNotificationCheck = new Date().toISOString();
+        startGlobalPolling();
       } catch (err) {
         console.error(err);
         showToast(err.message || 'Ошибка запуска', 'error');
@@ -1272,6 +1393,7 @@
       els.chatList.innerHTML = state.chats.map(chat => {
         const avatar = chatAvatar(chat);
         const lastTime = formatTime(chat.updated_at);
+        const unread = state.unreadCounts[chat.id] || 0;
         return `
           <div class="chat-item ${state.activeChatId === chat.id ? 'active' : ''}" data-chat-id="${chat.id}">
             <div class="avatar">${avatarMarkup(avatar.url, avatar.text)}</div>
@@ -1279,7 +1401,10 @@
               <div class="title" style="font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(chatTitle(chat))}</div>
               <div class="preview">${escapeHtml(chatSubtitle(chat))}</div>
             </div>
-            <div class="meta">${escapeHtml(lastTime)}</div>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+              <div class="meta">${escapeHtml(lastTime)}</div>
+              ${unread ? `<div class="unread-badge">${unread}</div>` : ''}
+            </div>
           </div>
         `;
       }).join('');
@@ -1305,8 +1430,13 @@
 
     async function openChat(chatId) {
       state.activeChatId = chatId;
+      state.unreadCounts[chatId] = 0;
       const chat = state.chats.find(c => c.id === chatId);
       if (!chat) return;
+
+      if (window.innerWidth <= 1080) {
+        document.body.classList.add('mobile-chat-open');
+      }
 
       const avatar = chatAvatar(chat);
       els.activeChatAvatar.innerHTML = avatarMarkup(avatar.url, avatar.text);
@@ -1562,6 +1692,9 @@
       els.groupUserSearch.addEventListener('input', renderGroupUsers);
       els.chatSearch.addEventListener('input', loadChats);
       els.sendBtn.addEventListener('click', sendMessage);
+      els.mobileBackBtn.addEventListener('click', () => {
+        document.body.classList.remove('mobile-chat-open');
+      });
       els.toggleAutoRefreshBtn.addEventListener('click', async () => {
         state.autoRefresh = !state.autoRefresh;
         applyRefreshModeUi();
