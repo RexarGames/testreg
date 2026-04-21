@@ -6,370 +6,189 @@
   <title>Messenger</title>
   <style>
     :root {
-      --bg1: #0b1020;
-      --bg2: #1b2540;
-      --glass: rgba(255,255,255,0.12);
-      --glass-strong: rgba(255,255,255,0.18);
-      --border: rgba(255,255,255,0.18);
-      --text: #eef3ff;
-      --muted: rgba(238,243,255,0.72);
-      --accent: #9ec8ff;
-      --accent2: #b29cff;
-      --danger: #ff8d8d;
-      --ok: #8dffbf;
-      --shadow: 0 20px 60px rgba(0,0,0,0.35);
+      --bg: #0e1621;
+      --panel: #17212b;
+      --line: #22303d;
+      --text: #e6eef6;
+      --muted: #8ea1b3;
+      --blue: #2aabee;
+      --danger: #ef5350;
+      --bubble-me: #2b5278;
+      --bubble-other: #182533;
     }
-
     * { box-sizing: border-box; }
     html, body { height: 100%; }
     body {
       margin: 0;
       font-family: Inter, Arial, sans-serif;
+      background: var(--bg);
       color: var(--text);
-      background:
-        radial-gradient(circle at 20% 20%, rgba(130,170,255,0.22), transparent 28%),
-        radial-gradient(circle at 80% 15%, rgba(178,156,255,0.2), transparent 26%),
-        radial-gradient(circle at 50% 85%, rgba(120,255,214,0.12), transparent 22%),
-        linear-gradient(135deg, var(--bg1), var(--bg2));
       overflow: hidden;
     }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      backdrop-filter: blur(10px);
-      pointer-events: none;
-    }
-
     .hidden { display: none !important; }
-
-    .glass {
-      background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.08));
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(22px) saturate(170%);
-      -webkit-backdrop-filter: blur(22px) saturate(170%);
+    .mobile-only { display: none; }
+    button, input, select, textarea { font: inherit; }
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #101922;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 12px 14px;
+      outline: none;
     }
-
+    textarea { resize: vertical; min-height: 54px; }
+    input::placeholder, textarea::placeholder { color: #6f8396; }
+    input:focus, textarea:focus, select:focus { border-color: var(--blue); }
+    .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 11px 16px;
+      cursor: pointer;
+      transition: .18s ease;
+    }
+    .btn:hover { opacity: .92; }
+    .btn:disabled { opacity: .55; cursor: default; }
+    .btn-primary { background: var(--blue); color: white; }
+    .btn-secondary { background: #223140; color: var(--text); }
+    .btn-danger { background: #402126; color: #ffc8c7; }
     .auth-wrap {
       min-height: 100vh;
       display: grid;
       place-items: center;
-      padding: 24px;
+      padding: 20px;
     }
-
     .auth-card {
-      width: min(980px, 100%);
-      border-radius: 32px;
-      overflow: hidden;
-      display: grid;
-      grid-template-columns: 1.05fr 1fr;
-    }
-
-    .auth-left {
-      padding: 34px;
-      position: relative;
-      min-height: 650px;
-      background:
-        radial-gradient(circle at 15% 10%, rgba(255,255,255,0.14), transparent 30%),
-        radial-gradient(circle at 85% 80%, rgba(255,255,255,0.08), transparent 35%);
-    }
-
-    .brand-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.16);
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 20px;
-    }
-
-    .brand-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow: 0 0 18px rgba(158,200,255,0.8);
-    }
-
-    .auth-title {
-      font-size: clamp(34px, 5vw, 58px);
-      line-height: 0.95;
-      margin: 0;
-      letter-spacing: -0.04em;
-      max-width: 430px;
-    }
-
-    .auth-sub {
-      margin-top: 18px;
-      max-width: 450px;
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.6;
-    }
-
-    .float-cards {
-      position: absolute;
-      left: 34px;
-      right: 34px;
-      bottom: 34px;
+      width: min(900px, 100%);
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-
-    .mini-card {
-      border-radius: 24px;
-      padding: 16px;
-      min-height: 140px;
-      position: relative;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
       overflow: hidden;
     }
-
-    .mini-card::after {
-      content: "";
-      position: absolute;
-      width: 130px;
-      height: 130px;
-      border-radius: 50%;
-      right: -30px;
-      bottom: -45px;
-      background: radial-gradient(circle, rgba(255,255,255,0.25), transparent 65%);
-    }
-
-    .mini-label {
-      color: var(--muted);
-      font-size: 12px;
-      margin-bottom: 10px;
-    }
-
-    .mini-value {
-      font-size: 26px;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      margin-bottom: 8px;
-    }
-
-    .auth-right {
+    .auth-side {
       padding: 28px;
-      background: rgba(8, 12, 24, 0.25);
+      border-right: 1px solid var(--line);
+      background: linear-gradient(180deg, #17212b, #121c26);
     }
-
-    .tabs {
-      display: inline-flex;
-      padding: 6px;
-      gap: 6px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
-      margin-bottom: 18px;
+    .auth-side h1 {
+      margin: 0 0 12px;
+      font-size: 40px;
+      line-height: 1;
     }
-
-    .tab-btn {
-      border: 0;
-      color: var(--text);
-      background: transparent;
-      padding: 10px 18px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .tab-btn.active {
-      background: rgba(255,255,255,0.14);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.14);
-    }
-
-    .form-card {
-      border-radius: 28px;
-      padding: 22px;
-      min-height: 560px;
-    }
-
-    .field-grid {
-      display: grid;
-      gap: 12px;
-    }
-
-    .field-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .field label {
-      display: block;
-      font-size: 13px;
+    .auth-side p {
       color: var(--muted);
-      margin-bottom: 8px;
+      line-height: 1.6;
+      margin: 0;
     }
-
-    input, select, textarea, button {
-      font: inherit;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(255,255,255,0.08);
+    .auth-main { padding: 24px; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .tab-btn {
+      flex: 1;
+      border: 1px solid var(--line);
+      background: #13202b;
       color: var(--text);
-      border-radius: 18px;
-      padding: 14px 16px;
-      outline: none;
-      transition: 0.2s ease;
-    }
-
-    input::placeholder, textarea::placeholder {
-      color: rgba(238,243,255,0.4);
-    }
-
-    input:focus, select:focus, textarea:focus {
-      border-color: rgba(158,200,255,0.45);
-      box-shadow: 0 0 0 4px rgba(158,200,255,0.12);
-    }
-
-    textarea { resize: vertical; min-height: 110px; }
-
-    .primary-btn, .ghost-btn, .danger-btn {
-      border: 0;
-      border-radius: 18px;
-      padding: 14px 18px;
-      color: var(--text);
+      border-radius: 10px;
+      padding: 12px;
       cursor: pointer;
-      transition: transform 0.18s ease, opacity 0.18s ease;
     }
-    .primary-btn:hover, .ghost-btn:hover, .danger-btn:hover { transform: translateY(-1px); }
-    .primary-btn {
-      background: linear-gradient(135deg, rgba(158,200,255,0.32), rgba(178,156,255,0.28));
-      border: 1px solid rgba(255,255,255,0.22);
-    }
-    .ghost-btn {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.14);
-    }
-    .danger-btn {
-      background: rgba(255,141,141,0.14);
-      border: 1px solid rgba(255,141,141,0.22);
-      color: #ffd8d8;
-    }
-
-    .button-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-
-    .status {
-      margin-top: 14px;
-      min-height: 20px;
-      font-size: 14px;
-    }
-
+    .tab-btn.active { background: #203445; border-color: #2d4356; }
+    .field-grid { display: grid; gap: 12px; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .status { min-height: 20px; color: var(--muted); font-size: 14px; }
     .app-shell {
       height: 100vh;
-      padding: 18px;
       display: grid;
-      grid-template-columns: 340px 1fr;
-      gap: 16px;
+      grid-template-columns: 320px 1fr;
+      background: var(--bg);
     }
-
     .sidebar {
-      border-radius: 30px;
-      padding: 16px;
+      background: var(--panel);
+      border-right: 1px solid var(--line);
       display: grid;
       grid-template-rows: auto auto 1fr auto;
-      gap: 14px;
       min-height: 0;
     }
-
-    .profile-head {
+    .side-top {
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      gap: 12px;
+    }
+    .profile-chip {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 8px;
-      border-radius: 22px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.08);
+      cursor: pointer;
     }
-
     .avatar {
-      width: 54px;
-      height: 54px;
-      min-width: 54px;
-      border-radius: 18px;
-      object-fit: cover;
-      background: linear-gradient(135deg, rgba(158,200,255,0.35), rgba(178,156,255,0.25));
-      border: 1px solid rgba(255,255,255,0.14);
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      border-radius: 50%;
+      background: #233647;
       display: grid;
       place-items: center;
-      font-weight: 700;
-      font-size: 18px;
       overflow: hidden;
+      font-weight: 700;
+      color: white;
     }
-
-    .name-block {
-      min-width: 0;
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
-
-    .name-block .title {
+    .user-title {
       font-weight: 700;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-
-    .name-block .subtitle {
+    .user-sub {
       color: var(--muted);
       font-size: 13px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-
-    .sidebar-actions {
+    .rep-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .rep-tag.fake { background: rgba(245, 158, 11, .15); color: #ffcf70; }
+    .rep-tag.scam { background: rgba(239, 83, 80, .16); color: #ff9b99; }
+    .side-actions {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
     }
-
-    .chat-search {
-      position: relative;
-    }
-
-    .chat-list {
-      overflow: auto;
-      display: grid;
-      gap: 10px;
-      padding-right: 4px;
-      min-height: 0;
-    }
-
+    .chat-list { overflow: auto; min-height: 0; }
     .chat-item {
       display: grid;
       grid-template-columns: auto 1fr auto;
       gap: 12px;
       align-items: center;
-      padding: 12px;
-      border-radius: 22px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.08);
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.03);
       cursor: pointer;
-      transition: 0.18s ease;
+      transition: .15s ease;
     }
-
-    .chat-item:hover, .chat-item.active {
-      background: rgba(255,255,255,0.12);
-      border-color: rgba(255,255,255,0.16);
-      transform: translateY(-1px);
+    .chat-item:hover, .chat-item.active { background: #20303f; }
+    .chat-name {
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-
-    .chat-item .preview {
+    .chat-preview {
       color: var(--muted);
       font-size: 13px;
       margin-top: 4px;
@@ -377,13 +196,14 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-
-    .chat-item .meta {
+    .chat-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
       font-size: 12px;
       color: var(--muted);
-      align-self: start;
     }
-
     .unread-badge {
       min-width: 22px;
       height: 22px;
@@ -392,395 +212,290 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      background: #4ea4ff;
+      background: var(--blue);
       color: white;
       font-size: 12px;
       font-weight: 700;
-      margin-top: 6px;
-      margin-left: auto;
     }
-
-    .mobile-only {
-      display: none;
-    }
-
-    .sidebar-footer {
-      display: flex;
+    .side-bottom {
+      padding: 12px;
+      border-top: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
     }
-
-    .sidebar-footer button { flex: 1; }
-
-    .main-panel {
-      border-radius: 30px;
+    .main {
       display: grid;
       grid-template-rows: auto 1fr auto;
       min-height: 0;
-      overflow: hidden;
+      background: #0b141a;
     }
-
-    .chat-topbar {
+    .topbar {
+      height: 64px;
+      border-bottom: 1px solid var(--line);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
-      padding: 16px 18px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 0 16px;
+      background: var(--panel);
+      gap: 12px;
     }
-
-    .chat-top-left {
+    .topbar-left {
       display: flex;
       align-items: center;
       gap: 12px;
       min-width: 0;
+      cursor: pointer;
     }
-
-    .chat-main-title {
-      font-size: 20px;
-      font-weight: 700;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .chat-main-subtitle {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
     .messages {
       overflow: auto;
+      min-height: 0;
       padding: 18px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+      gap: 10px;
+      background: radial-gradient(circle at center, rgba(255,255,255,.03), transparent 35%), #0e1621;
     }
-
-    .message {
-      max-width: min(78%, 700px);
-      padding: 12px 14px;
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(255,255,255,0.07);
+    .empty {
+      height: 100%;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      text-align: center;
+      padding: 20px;
+    }
+    .msg {
+      max-width: min(75%, 760px);
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: var(--bubble-other);
       align-self: flex-start;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.16);
+      border: 1px solid rgba(255,255,255,.03);
     }
-
-    .message.mine {
-      align-self: flex-end;
-      background: linear-gradient(135deg, rgba(158,200,255,0.22), rgba(178,156,255,0.18));
-      border-color: rgba(255,255,255,0.16);
-    }
-
-    .message-head {
+    .msg.mine { background: var(--bubble-me); align-self: flex-end; }
+    .msg-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      margin-bottom: 6px;
       font-size: 12px;
-      color: var(--muted);
+      color: #aac3d8;
+      margin-bottom: 5px;
     }
-
-    .message-text {
+    .msg-body {
       white-space: pre-wrap;
       word-break: break-word;
-      line-height: 1.55;
+      line-height: 1.5;
     }
-
     .attach-link {
+      margin-top: 8px;
       display: inline-flex;
-      margin-top: 10px;
-      gap: 8px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      background: rgba(255,255,255,0.08);
-      color: var(--text);
+      color: #9fd0ff;
       text-decoration: none;
-      border: 1px solid rgba(255,255,255,0.1);
+      word-break: break-all;
     }
-
     .composer {
-      padding: 16px;
-      border-top: 1px solid rgba(255,255,255,0.08);
+      padding: 12px;
+      border-top: 1px solid var(--line);
+      background: var(--panel);
       display: grid;
       gap: 10px;
     }
-
     .composer-row {
       display: grid;
-      grid-template-columns: 1fr auto auto;
+      grid-template-columns: 1fr auto auto auto;
       gap: 10px;
       align-items: end;
     }
-
     .composer textarea {
-      min-height: 56px;
+      min-height: 48px;
       max-height: 180px;
+      border-radius: 18px;
+      background: #17212b;
     }
-
     .file-line {
+      color: var(--muted);
+      font-size: 13px;
       display: flex;
       gap: 10px;
       align-items: center;
-      color: var(--muted);
-      font-size: 13px;
       flex-wrap: wrap;
     }
-
-    .empty-state {
-      height: 100%;
-      display: grid;
-      place-items: center;
-      text-align: center;
-      color: var(--muted);
-      padding: 20px;
-    }
-
     .modal {
       position: fixed;
       inset: 0;
+      background: rgba(6, 11, 16, .7);
       display: none;
       align-items: center;
       justify-content: center;
       padding: 20px;
-      background: rgba(7, 10, 18, 0.45);
-      backdrop-filter: blur(14px);
       z-index: 50;
     }
-
     .modal.open { display: flex; }
-
     .modal-card {
       width: min(760px, 100%);
-      max-height: min(90vh, 920px);
+      max-height: 90vh;
       overflow: auto;
-      border-radius: 28px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
       padding: 18px;
     }
-
     .modal-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 12px;
       margin-bottom: 14px;
     }
-
-    .user-grid {
-      display: grid;
-      gap: 10px;
+    .dropzone {
+      border: 2px dashed #37516a;
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      color: var(--muted);
+      background: #101922;
+      transition: .16s ease;
     }
-
+    .dropzone.dragover {
+      border-color: var(--blue);
+      background: #132433;
+      color: #b8ddff;
+    }
+    .profile-view {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    .profile-view .avatar {
+      width: 86px;
+      height: 86px;
+      min-width: 86px;
+      font-size: 28px;
+    }
+    .tiny { color: var(--muted); font-size: 13px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .user-row {
       display: grid;
       grid-template-columns: auto 1fr auto;
       gap: 12px;
       align-items: center;
-      padding: 12px;
-      border-radius: 20px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.08);
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,.05);
     }
-
-    .user-row input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      margin: 0;
-      accent-color: #9ec8ff;
-    }
-
-    .tiny {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .top-status {
+    .toast {
       position: fixed;
       left: 50%;
-      bottom: 20px;
+      bottom: 16px;
       transform: translateX(-50%);
-      padding: 12px 16px;
-      border-radius: 999px;
-      background: rgba(12, 18, 34, 0.78);
-      border: 1px solid rgba(255,255,255,0.12);
+      background: #1d2c39;
+      border: 1px solid #2a4257;
       color: var(--text);
+      padding: 12px 16px;
+      border-radius: 10px;
       z-index: 100;
       opacity: 0;
       pointer-events: none;
-      transition: 0.22s ease;
-      backdrop-filter: blur(14px);
-      min-width: 240px;
-      text-align: center;
+      transition: .18s ease;
     }
-
-    .top-status.show { opacity: 1; }
-    .top-status.error { color: #ffd1d1; border-color: rgba(255,141,141,0.22); }
-    .top-status.ok { color: #d6ffe4; border-color: rgba(141,255,191,0.22); }
-
-    @media (max-width: 1080px) {
+    .toast.show { opacity: 1; }
+    @media (max-width: 900px) {
       .auth-card { grid-template-columns: 1fr; }
-      .auth-left { min-height: 420px; }
-      .float-cards { position: static; margin-top: 24px; }
-      .app-shell {
-        grid-template-columns: 1fr;
-        height: 100svh;
-        padding: 10px;
-      }
-      .sidebar, .main-panel {
-        height: calc(100svh - 20px);
-      }
-      body:not(.mobile-chat-open) .main-panel {
-        display: none;
-      }
-      body.mobile-chat-open .sidebar {
-        display: none;
-      }
-      .sidebar { grid-template-rows: auto auto minmax(180px, 1fr) auto; }
-      .mobile-only { display: inline-flex; }
-      body { overflow: auto; }
+      .auth-side { border-right: 0; border-bottom: 1px solid var(--line); }
+      .field-row, .row { grid-template-columns: 1fr; }
     }
-
-    @media (max-width: 700px) {
-      .field-row, .composer-row, .sidebar-actions, .sidebar-footer { grid-template-columns: 1fr; display: grid; }
-      .chat-item { grid-template-columns: auto 1fr; }
-      .chat-item .meta { display: none; }
-      .message { max-width: 90%; }
-      .float-cards { grid-template-columns: 1fr; }
-      .chat-topbar { flex-direction: column; align-items: flex-start; }
+    @media (max-width: 980px) {
+      .mobile-only { display: inline-flex; }
+      .app-shell { grid-template-columns: 1fr; }
+      .sidebar, .main { height: 100svh; }
+      body:not(.mobile-chat-open) .main { display: none; }
+      body.mobile-chat-open .sidebar { display: none; }
+      .composer-row { grid-template-columns: 1fr auto; }
+      .composer-row .btn-hide-mobile { display: none; }
     }
   </style>
 </head>
 <body>
-  <div id="toast" class="top-status"></div>
+  <div id="toast" class="toast"></div>
 
   <section id="authView" class="auth-wrap">
-    <div class="auth-card glass">
-      <div class="auth-left">
-        <div class="brand-badge"><span class="brand-dot"></span><span>Messenger</span></div>
-        <h1 class="auth-title">Liquid Glass<br>Messenger</h1>
-        <div class="auth-sub">Быстрый вход, чаты, группы, профиль, аватар и файлы.</div>
-
-        <div class="float-cards">
-          <div class="mini-card glass">
-            <div class="mini-label">Direct</div>
-            <div class="mini-value">1 × 1</div>
-            <div class="tiny">Личные чаты между пользователями</div>
-          </div>
-          <div class="mini-card glass">
-            <div class="mini-label">Groups</div>
-            <div class="mini-value">∞</div>
-            <div class="tiny">Пробные групповые разговоры</div>
-          </div>
-        </div>
+    <div class="auth-card">
+      <div class="auth-side">
+        <h1>Messenger</h1>
+        <p>Чаты, группы, профили, аватары, файлы и репутация.</p>
       </div>
-
-      <div class="auth-right">
+      <div class="auth-main">
         <div class="tabs">
           <button id="registerTab" class="tab-btn active">Регистрация</button>
           <button id="loginTab" class="tab-btn">Вход</button>
         </div>
 
-        <div id="registerForm" class="form-card glass">
-          <div class="field-grid">
-            <div class="field-row">
-              <div class="field">
-                <label>Никнейм</label>
-                <input id="regNickname" placeholder="Например: Dexxure" />
-              </div>
-              <div class="field">
-                <label>Username</label>
-                <input id="regUsername" placeholder="Например: dexxure" />
-              </div>
-            </div>
-            <div class="field">
-              <label>Email</label>
-              <input id="regEmail" type="email" placeholder="you@example.com" />
-            </div>
-            <div class="field">
-              <label>Пароль</label>
-              <input id="regPassword" type="password" placeholder="Минимум 6 символов" />
-            </div>
-            <div class="button-row">
-              <button id="registerBtn" class="primary-btn">Создать аккаунт</button>
-            </div>
-            <div id="registerStatus" class="status"></div>
+        <div id="registerForm" class="field-grid">
+          <div class="field-row">
+            <input id="regNickname" placeholder="Никнейм" />
+            <input id="regUsername" placeholder="Username" />
           </div>
+          <input id="regEmail" type="email" placeholder="Email" />
+          <input id="regPassword" type="password" placeholder="Пароль" />
+          <button id="registerBtn" class="btn btn-primary">Создать аккаунт</button>
+          <div id="registerStatus" class="status"></div>
         </div>
 
-        <div id="loginForm" class="form-card glass hidden">
-          <div class="field-grid">
-            <div class="field">
-              <label>Email</label>
-              <input id="loginEmail" type="email" placeholder="you@example.com" />
-            </div>
-            <div class="field">
-              <label>Пароль</label>
-              <input id="loginPassword" type="password" placeholder="Пароль" />
-            </div>
-            <div class="button-row">
-              <button id="loginBtn" class="primary-btn">Войти</button>
-            </div>
-            <div id="loginStatus" class="status"></div>
-          </div>
+        <div id="loginForm" class="field-grid hidden">
+          <input id="loginEmail" type="email" placeholder="Email" />
+          <input id="loginPassword" type="password" placeholder="Пароль" />
+          <button id="loginBtn" class="btn btn-primary">Войти</button>
+          <div id="loginStatus" class="status"></div>
         </div>
       </div>
     </div>
   </section>
 
   <section id="appView" class="app-shell hidden">
-    <aside class="sidebar glass">
-      <div class="profile-head">
-        <div id="myAvatar" class="avatar">M</div>
-        <div class="name-block">
-          <div id="myName" class="title">—</div>
-          <div id="myUsername" class="subtitle">—</div>
+    <aside class="sidebar">
+      <div class="side-top">
+        <div id="selfProfileChip" class="profile-chip">
+          <div id="myAvatar" class="avatar">M</div>
+          <div style="min-width:0;">
+            <div id="myName" class="user-title">—</div>
+            <div id="myUsername" class="user-sub">—</div>
+          </div>
         </div>
-      </div>
 
-      <div class="sidebar-actions">
-        <button id="newChatBtn" class="primary-btn">Новый чат</button>
-        <button id="newGroupBtn" class="ghost-btn">Группа</button>
-      </div>
-
-      <div>
-        <div class="chat-search">
-          <input id="chatSearch" placeholder="Поиск" />
+        <div class="side-actions">
+          <button id="newChatBtn" class="btn btn-primary">Новый чат</button>
+          <button id="newGroupBtn" class="btn btn-secondary">Группа</button>
         </div>
+
+        <input id="chatSearch" placeholder="Поиск" />
       </div>
 
       <div id="chatList" class="chat-list"></div>
 
-      <div class="sidebar-footer">
-        <button id="profileBtn" class="ghost-btn">Профиль</button>
-        <button id="logoutBtn" class="danger-btn">Выйти</button>
+      <div class="side-bottom">
+        <button id="profileBtn" class="btn btn-secondary">Профиль</button>
+        <button id="logoutBtn" class="btn btn-danger">Выйти</button>
       </div>
     </aside>
 
-    <main class="main-panel glass">
-      <div class="chat-topbar">
-        <div class="chat-top-left">
-          <button id="mobileBackBtn" class="ghost-btn mobile-only">Назад</button>
+    <main class="main">
+      <div class="topbar">
+        <div id="activeProfileChip" class="topbar-left">
+          <button id="mobileBackBtn" class="btn btn-secondary mobile-only">Назад</button>
           <div id="activeChatAvatar" class="avatar">C</div>
-          <div>
-            <div id="activeChatTitle" class="chat-main-title">Выбери чат</div>
-            <div id="activeChatSubtitle" class="chat-main-subtitle">Личные данные скрыты. Видны только публичные поля профиля.</div>
+          <div style="min-width:0;">
+            <div id="activeChatTitle" class="user-title">Выбери чат</div>
+            <div id="activeChatSubtitle" class="user-sub">Профиль и сообщения</div>
           </div>
         </div>
-        <div class="button-row">
-          <button id="toggleAutoRefreshBtn" class="ghost-btn">Авто: вкл</button>
-          <button id="refreshChatsBtn" class="ghost-btn">Обновить</button>
+        <div>
+          <button id="refreshBtn" class="btn btn-secondary">Обновить</button>
         </div>
       </div>
 
       <div id="messagesWrap" class="messages">
-        <div class="empty-state">
-          <div>
-            <h2 style="margin:0 0 8px; color: var(--text);">Ничего не открыто</h2>
-            <div>Создай личный чат или группу слева.</div>
-          </div>
-        </div>
+        <div class="empty"><div>Выбери чат или создай новый.</div></div>
       </div>
 
       <div class="composer">
@@ -790,85 +505,72 @@
           <span id="fileNameLine">Файл не выбран</span>
         </div>
         <div class="composer-row">
+          <button id="clearFileBtn" class="btn btn-secondary btn-hide-mobile">Убрать файл</button>
           <div></div>
-          <button id="clearFileBtn" class="ghost-btn">Убрать файл</button>
-          <button id="sendBtn" class="primary-btn">Отправить</button>
+          <button id="clearFileBtnMobile" class="btn btn-secondary mobile-only">Убрать</button>
+          <button id="sendBtn" class="btn btn-primary">Отправить</button>
         </div>
       </div>
     </main>
   </section>
 
   <div id="profileModal" class="modal">
-    <div class="modal-card glass">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 style="margin:0;">Мой профиль</h2>
+        <button class="btn btn-secondary" data-close="profileModal">Закрыть</button>
+      </div>
+      <div class="field-grid">
+        <div class="row">
+          <input id="profileNickname" placeholder="Никнейм" />
+          <input id="profileUsername" placeholder="Username" />
+        </div>
+        <textarea id="profileBio" placeholder="О себе"></textarea>
+        <input id="profileEmail" readonly />
+        <div id="avatarDropzone" class="dropzone">
+          Перетащи сюда аватар или нажми, чтобы выбрать файл
+          <input id="avatarFile" type="file" accept="image/*" class="hidden" />
+        </div>
+        <div id="avatarPreview" class="tiny"></div>
+        <button id="saveProfileBtn" class="btn btn-primary">Сохранить профиль</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="viewProfileModal" class="modal">
+    <div class="modal-card">
       <div class="modal-head">
         <h2 style="margin:0;">Профиль</h2>
-        <button class="ghost-btn" data-close="profileModal">Закрыть</button>
+        <button class="btn btn-secondary" data-close="viewProfileModal">Закрыть</button>
       </div>
-
-      <div class="field-grid">
-        <div class="field-row">
-          <div class="field">
-            <label>Никнейм</label>
-            <input id="profileNickname" />
-          </div>
-          <div class="field">
-            <label>Username</label>
-            <input id="profileUsername" />
-          </div>
-        </div>
-
-        <div class="field">
-          <label>О себе</label>
-          <textarea id="profileBio"></textarea>
-        </div>
-
-        <div class="field-row">
-          <div class="field">
-            <label>Загрузить аватар</label>
-            <input id="avatarFile" type="file" accept="image/*" />
-          </div>
-          <div class="field">
-            <label>Email</label>
-            <input id="profileEmail" readonly />
-          </div>
-        </div>
-
-        <div class="button-row">
-          <button id="saveProfileBtn" class="primary-btn">Сохранить профиль</button>
-        </div>
-      </div>
+      <div id="viewProfileContent"></div>
     </div>
   </div>
 
   <div id="newChatModal" class="modal">
-    <div class="modal-card glass">
+    <div class="modal-card">
       <div class="modal-head">
         <h2 style="margin:0;">Новый чат</h2>
-        <button class="ghost-btn" data-close="newChatModal">Закрыть</button>
+        <button class="btn btn-secondary" data-close="newChatModal">Закрыть</button>
       </div>
       <input id="userSearch" placeholder="Поиск пользователя" />
-      <div id="userList" class="user-grid" style="margin-top: 14px;"></div>
+      <div id="userList" style="margin-top:14px;"></div>
     </div>
   </div>
 
   <div id="newGroupModal" class="modal">
-    <div class="modal-card glass">
+    <div class="modal-card">
       <div class="modal-head">
         <h2 style="margin:0;">Новая группа</h2>
-        <button class="ghost-btn" data-close="newGroupModal">Закрыть</button>
+        <button class="btn btn-secondary" data-close="newGroupModal">Закрыть</button>
       </div>
-
       <div class="field-grid">
-        <div class="field">
-          <label>Название группы</label>
-          <input id="groupTitle" placeholder="Например: Team Chat" />
-        </div>
+        <input id="groupTitle" placeholder="Название группы" />
+        <input id="groupUserSearch" placeholder="Поиск пользователей" />
       </div>
-
-      <input id="groupUserSearch" placeholder="Поиск пользователей" style="margin-top:12px;" />
-      <div id="groupUsersList" class="user-grid" style="margin-top: 14px;"></div>
-      <div class="button-row" style="margin-top:16px;">
-        <button id="createGroupBtn" class="primary-btn">Создать группу</button>
+      <div id="groupUsersList" style="margin-top:14px;"></div>
+      <div style="margin-top:14px;">
+        <button id="createGroupBtn" class="btn btn-primary">Создать группу</button>
       </div>
     </div>
   </div>
@@ -878,73 +580,79 @@
 
     const SUPABASE_URL = "https://tsfjqtdoxfmxadxuivpg.supabase.co";
     const SUPABASE_KEY = "sb_publishable_yXZd7wd5aVNpuxjt7-ax8g_aejudNte";
-
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const state = {
       user: null,
       myProfile: null,
-      chats: [],
-      chatMembers: {},
       profiles: [],
       profilesMap: new Map(),
+      chats: [],
+      chatMembers: {},
       activeChatId: null,
       activeMessages: [],
-      poller: null,
-      fileToSend: null,
-      openModalId: null,
-      autoRefresh: true,
-      globalPoller: null,
+      activeProfileUserId: null,
+      polling: null,
+      busySend: false,
+      busyProfileSave: false,
+      selectedAvatarFile: null,
+      selectedMessageFile: null,
       unreadCounts: {},
-      lastNotificationCheck: null,
+      lastMessageSeenAt: null,
     };
 
     const els = {
       toast: document.getElementById('toast'),
       authView: document.getElementById('authView'),
       appView: document.getElementById('appView'),
-      registerForm: document.getElementById('registerForm'),
-      loginForm: document.getElementById('loginForm'),
       registerTab: document.getElementById('registerTab'),
       loginTab: document.getElementById('loginTab'),
+      registerForm: document.getElementById('registerForm'),
+      loginForm: document.getElementById('loginForm'),
       regNickname: document.getElementById('regNickname'),
       regUsername: document.getElementById('regUsername'),
       regEmail: document.getElementById('regEmail'),
       regPassword: document.getElementById('regPassword'),
       registerBtn: document.getElementById('registerBtn'),
+      registerStatus: document.getElementById('registerStatus'),
       loginEmail: document.getElementById('loginEmail'),
       loginPassword: document.getElementById('loginPassword'),
       loginBtn: document.getElementById('loginBtn'),
-      registerStatus: document.getElementById('registerStatus'),
       loginStatus: document.getElementById('loginStatus'),
+      selfProfileChip: document.getElementById('selfProfileChip'),
       myAvatar: document.getElementById('myAvatar'),
       myName: document.getElementById('myName'),
       myUsername: document.getElementById('myUsername'),
-      chatList: document.getElementById('chatList'),
       chatSearch: document.getElementById('chatSearch'),
       newChatBtn: document.getElementById('newChatBtn'),
       newGroupBtn: document.getElementById('newGroupBtn'),
+      chatList: document.getElementById('chatList'),
       profileBtn: document.getElementById('profileBtn'),
       logoutBtn: document.getElementById('logoutBtn'),
+      activeProfileChip: document.getElementById('activeProfileChip'),
       activeChatAvatar: document.getElementById('activeChatAvatar'),
       activeChatTitle: document.getElementById('activeChatTitle'),
       activeChatSubtitle: document.getElementById('activeChatSubtitle'),
+      mobileBackBtn: document.getElementById('mobileBackBtn'),
+      refreshBtn: document.getElementById('refreshBtn'),
       messagesWrap: document.getElementById('messagesWrap'),
       messageInput: document.getElementById('messageInput'),
       messageFile: document.getElementById('messageFile'),
       fileNameLine: document.getElementById('fileNameLine'),
       clearFileBtn: document.getElementById('clearFileBtn'),
+      clearFileBtnMobile: document.getElementById('clearFileBtnMobile'),
       sendBtn: document.getElementById('sendBtn'),
-      toggleAutoRefreshBtn: document.getElementById('toggleAutoRefreshBtn'),
-      mobileBackBtn: document.getElementById('mobileBackBtn'),
-      refreshChatsBtn: document.getElementById('refreshChatsBtn'),
       profileModal: document.getElementById('profileModal'),
       profileNickname: document.getElementById('profileNickname'),
       profileUsername: document.getElementById('profileUsername'),
       profileBio: document.getElementById('profileBio'),
-      avatarFile: document.getElementById('avatarFile'),
       profileEmail: document.getElementById('profileEmail'),
+      avatarDropzone: document.getElementById('avatarDropzone'),
+      avatarFile: document.getElementById('avatarFile'),
+      avatarPreview: document.getElementById('avatarPreview'),
       saveProfileBtn: document.getElementById('saveProfileBtn'),
+      viewProfileModal: document.getElementById('viewProfileModal'),
+      viewProfileContent: document.getElementById('viewProfileContent'),
       newChatModal: document.getElementById('newChatModal'),
       userSearch: document.getElementById('userSearch'),
       userList: document.getElementById('userList'),
@@ -955,46 +663,23 @@
       createGroupBtn: document.getElementById('createGroupBtn'),
     };
 
-    function showToast(text, type = 'ok') {
+    function toast(text) {
       els.toast.textContent = text;
-      els.toast.className = `top-status show ${type}`;
-      clearTimeout(showToast._t);
-      showToast._t = setTimeout(() => {
-        els.toast.className = 'top-status';
-      }, 2600);
+      els.toast.classList.add('show');
+      clearTimeout(toast.t);
+      toast.t = setTimeout(() => els.toast.classList.remove('show'), 2200);
     }
 
     function setStatus(el, text, isError = false) {
-      el.textContent = text || '';
-      el.style.color = isError ? 'var(--danger)' : 'var(--ok)';
+      el.textContent = text;
+      el.style.color = isError ? 'var(--danger)' : 'var(--muted)';
     }
 
-    function setAuthMode(mode) {
-      const reg = mode === 'register';
-      els.registerForm.classList.toggle('hidden', !reg);
-      els.loginForm.classList.toggle('hidden', reg);
-      els.registerTab.classList.toggle('active', reg);
-      els.loginTab.classList.toggle('active', !reg);
-    }
+    function showModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModals() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('open')); }
 
-    function openModal(id) {
-      closeAllModals();
-      document.getElementById(id).classList.add('open');
-      state.openModalId = id;
-    }
-
-    function closeAllModals() {
-      document.querySelectorAll('.modal').forEach(m => m.classList.remove('open'));
-      state.openModalId = null;
-    }
-
-    function avatarMarkup(url, textFallback = '?') {
-      if (url) return `<img src="${escapeHtml(url)}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">`;
-      return escapeHtml((textFallback || '?').slice(0, 1).toUpperCase());
-    }
-
-    function escapeHtml(value) {
-      return String(value ?? '')
+    function escapeHtml(s) {
+      return String(s ?? '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
@@ -1002,8 +687,8 @@
         .replace(/'/g, '&#039;');
     }
 
-    function normalizeUsername(value) {
-      return (value || '')
+    function normalizeUsername(v) {
+      return String(v || '')
         .trim()
         .toLowerCase()
         .replace(/[^a-z0-9_]/g, '_')
@@ -1012,168 +697,109 @@
         .slice(0, 24);
     }
 
-    function nameOfProfile(profile, fallback = 'User') {
+    function avatarHTML(url, fallback = '?') {
+      if (url) return `<img src="${escapeHtml(url)}" alt="">`;
+      return escapeHtml(String(fallback).slice(0,1).toUpperCase());
+    }
+
+    function repInfo(profile) {
+      const count = Number(profile?.reports_count || 0);
+      if (count >= 8) return { label: 'SCAM', cls: 'scam' };
+      if (count >= 4) return { label: 'FAKE', cls: 'fake' };
+      return null;
+    }
+
+    function displayName(profile, fallback = 'User') {
       return profile?.nickname?.trim() || profile?.username?.trim() || fallback;
     }
 
-    function userShort(profile) {
-      return profile?.username ? '@' + profile.username : 'Пользователь';
+    function displayHandle(profile) {
+      return profile?.username ? '@' + profile.username : 'без username';
     }
 
-    function formatTime(value) {
-      if (!value) return '';
-      const d = new Date(value);
-      return d.toLocaleString('ru-RU', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+    function nameWithRep(profile, fallback = 'User') {
+      const rep = repInfo(profile);
+      return `${escapeHtml(displayName(profile, fallback))}${rep ? ` <span class="rep-tag ${rep.cls}">${rep.label}</span>` : ''}`;
     }
 
-    function showAuthView() {
+    function formatTime(v) {
+      if (!v) return '';
+      const d = new Date(v);
+      return d.toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function showAuth() {
       els.authView.classList.remove('hidden');
       els.appView.classList.add('hidden');
       document.body.classList.remove('mobile-chat-open');
-      clearPoller();
-      clearGlobalPoller();
+      stopPolling();
     }
 
-    function showAppView() {
+    function showApp() {
       els.authView.classList.add('hidden');
       els.appView.classList.remove('hidden');
     }
 
-    function clearPoller() {
-      if (state.poller) {
-        clearInterval(state.poller);
-        state.poller = null;
+    function setAuthTab(tab) {
+      const isReg = tab === 'register';
+      els.registerTab.classList.toggle('active', isReg);
+      els.loginTab.classList.toggle('active', !isReg);
+      els.registerForm.classList.toggle('hidden', !isReg);
+      els.loginForm.classList.toggle('hidden', isReg);
+    }
+
+    function stopPolling() {
+      if (state.polling) {
+        clearInterval(state.polling);
+        state.polling = null;
       }
     }
 
-    function clearGlobalPoller() {
-      if (state.globalPoller) {
-        clearInterval(state.globalPoller);
-        state.globalPoller = null;
-      }
-    }
-
-    function requestBrowserNotificationPermission() {
-      try {
-        if ('Notification' in window && Notification.permission === 'default') {
-          Notification.requestPermission().catch(() => {});
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    function notifyIncoming(chatTitleText, bodyText) {
-      showToast(`Новое сообщение: ${chatTitleText}`);
-      try {
-        if ('Notification' in window && Notification.permission === 'granted' && document.hidden) {
-          new Notification(chatTitleText, { body: bodyText || 'Новое сообщение' });
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    async function checkIncomingMessages() {
-      try {
-        if (!state.user || !state.chats.length) return;
-        const ids = state.chats.map(c => c.id);
-        if (!ids.length) return;
-
-        const since = state.lastNotificationCheck || new Date().toISOString();
-        const { data, error } = await supabase
-          .from('messages')
-          .select('*')
-          .in('conversation_id', ids)
-          .gt('created_at', since)
-          .order('created_at', { ascending: true });
-
-        if (error) throw error;
-
-        if (data && data.length) {
-          for (const msg of data) {
-            if (msg.sender_id === state.user.id) continue;
-            if (state.activeChatId !== msg.conversation_id) {
-              state.unreadCounts[msg.conversation_id] = (state.unreadCounts[msg.conversation_id] || 0) + 1;
-            }
-            const chat = state.chats.find(c => c.id === msg.conversation_id);
-            const title = chat ? chatTitle(chat) : 'Messenger';
-            notifyIncoming(title, msg.body || msg.attachment_name || 'Новое сообщение');
-          }
-          state.lastNotificationCheck = data[data.length - 1].created_at;
-          renderChatList();
-          if (state.activeChatId) {
-            await loadMessages(state.activeChatId, false);
-          }
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    function startGlobalPolling() {
-      clearGlobalPoller();
-      state.globalPoller = setInterval(async () => {
+    function startPolling() {
+      stopPolling();
+      state.polling = setInterval(async () => {
         try {
-          await loadChats();
-          await checkIncomingMessages();
+          await loadChats(false);
+          if (state.activeChatId) await loadMessages(state.activeChatId, false);
+          await checkForNewMessages();
         } catch (e) {
           console.error(e);
         }
       }, 2000);
     }
 
-    function applyRefreshModeUi() {
-      if (!els.toggleAutoRefreshBtn) return;
-      els.toggleAutoRefreshBtn.textContent = state.autoRefresh ? 'Авто: вкл' : 'Авто: выкл';
-    }
-
-    function startChatPolling() {
-      clearPoller();
-      if (!state.autoRefresh || !state.activeChatId) return;
-      state.poller = setInterval(() => loadMessages(state.activeChatId, false), 1000);
-    }
-
     async function registerUser() {
       try {
         setStatus(els.registerStatus, 'Создание аккаунта...');
-        const nickname = els.regNickname.value.trim() || 'New User';
+        const nickname = els.regNickname.value.trim() || 'User';
         const username = normalizeUsername(els.regUsername.value || nickname);
         const email = els.regEmail.value.trim();
         const password = els.regPassword.value;
-
         if (!email || !password || password.length < 6) {
-          setStatus(els.registerStatus, 'Проверь email и пароль.', true);
+          setStatus(els.registerStatus, 'Проверь данные.', true);
           return;
         }
-
         const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-
         if (data.session?.user) {
           state.user = data.session.user;
-
-          const { error: profileError } = await supabase.from('profiles').upsert({
+          await supabase.from('profiles').upsert({
             user_id: state.user.id,
             nickname,
             username,
             bio: '',
-            avatar_url: ''
+            avatar_url: '',
+            reports_count: 0,
+            updated_at: new Date().toISOString(),
           });
-          if (profileError) throw profileError;
-
           await bootApp();
-          showToast('Аккаунт создан');
+          toast('Аккаунт создан');
         } else {
-          setStatus(
-            els.registerStatus,
-            'Аккаунт создан. Подтверди почту или отключи подтверждение email в Supabase.',
-            false
-          );
+          setStatus(els.registerStatus, 'Аккаунт создан. Подтверди почту, если включено подтверждение.', false);
         }
-      } catch (err) {
-        console.error(err);
-        setStatus(els.registerStatus, err.message || 'Ошибка регистрации', true);
+      } catch (e) {
+        console.error(e);
+        setStatus(els.registerStatus, e.message || 'Ошибка регистрации', true);
       }
     }
 
@@ -1186,28 +812,24 @@
         if (error) throw error;
         state.user = data.user;
         await bootApp();
-        showToast('Вход выполнен');
-      } catch (err) {
-        console.error(err);
-        setStatus(els.loginStatus, err.message || 'Ошибка входа', true);
+        toast('Вход выполнен');
+      } catch (e) {
+        console.error(e);
+        setStatus(els.loginStatus, e.message || 'Ошибка входа', true);
       }
     }
 
     async function logoutUser() {
-      try {
-        await supabase.auth.signOut();
-        state.user = null;
-        state.myProfile = null;
-        state.chats = [];
-        state.chatMembers = {};
-        state.activeChatId = null;
-        state.activeMessages = [];
-        showAuthView();
-        showToast('Выход выполнен');
-      } catch (err) {
-        console.error(err);
-        showToast('Ошибка выхода', 'error');
-      }
+      await supabase.auth.signOut();
+      state.user = null;
+      state.myProfile = null;
+      state.activeChatId = null;
+      state.activeMessages = [];
+      state.unreadCounts = {};
+      state.lastMessageSeenAt = null;
+      renderEmpty();
+      showAuth();
+      toast('Выход выполнен');
     }
 
     async function ensureMyProfile() {
@@ -1215,217 +837,181 @@
       if (error) throw error;
       if (data) {
         state.myProfile = data;
-        return data;
+        return;
       }
-      const emailLeft = (state.user.email || 'user').split('@')[0];
-      const username = normalizeUsername(emailLeft);
-      const payload = {
+      const username = normalizeUsername((state.user.email || 'user').split('@')[0]);
+      const { data: created, error: createError } = await supabase.from('profiles').upsert({
         user_id: state.user.id,
-        nickname: emailLeft,
+        nickname: username,
         username,
         bio: '',
-        avatar_url: ''
-      };
-      const { data: inserted, error: insertError } = await supabase.from('profiles').upsert(payload).select().single();
-      if (insertError) throw insertError;
-      state.myProfile = inserted;
-      return inserted;
+        avatar_url: '',
+        reports_count: 0,
+        updated_at: new Date().toISOString(),
+      }).select().single();
+      if (createError) throw createError;
+      state.myProfile = created;
     }
 
     async function loadProfiles() {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('nickname', { ascending: true });
+      const { data, error } = await supabase.from('profiles').select('*').order('nickname', { ascending: true });
       if (error) throw error;
       state.profiles = data || [];
-      state.profilesMap = new Map((data || []).map(p => [p.user_id, p]));
+      state.profilesMap = new Map(state.profiles.map(p => [p.user_id, p]));
+      state.myProfile = state.profilesMap.get(state.user.id) || state.myProfile;
     }
 
-    function renderSelfHeader() {
-      const p = state.myProfile;
-      els.myName.textContent = nameOfProfile(p, 'Профиль');
-      els.myUsername.textContent = p?.username ? '@' + p.username : 'Без username';
-      els.myAvatar.innerHTML = avatarMarkup(p?.avatar_url, nameOfProfile(p, 'P'));
+    function renderSelf() {
+      els.myAvatar.innerHTML = avatarHTML(state.myProfile?.avatar_url, displayName(state.myProfile, 'M'));
+      els.myName.innerHTML = nameWithRep(state.myProfile, 'Me');
+      els.myUsername.textContent = displayHandle(state.myProfile);
     }
 
     async function bootApp() {
-      try {
-        showAppView();
-        await ensureMyProfile();
-        await loadProfiles();
-        renderSelfHeader();
-        fillProfileModal();
-        await loadChats();
-        requestBrowserNotificationPermission();
-        if (!state.lastNotificationCheck) state.lastNotificationCheck = new Date().toISOString();
-        startGlobalPolling();
-      } catch (err) {
-        console.error(err);
-        showToast(err.message || 'Ошибка запуска', 'error');
-      }
+      showApp();
+      await ensureMyProfile();
+      await loadProfiles();
+      renderSelf();
+      fillProfileForm();
+      await loadChats(true);
+      if (!state.lastMessageSeenAt) state.lastMessageSeenAt = new Date().toISOString();
+      askNotificationPermission();
+      startPolling();
     }
 
-    function fillProfileModal() {
-      const p = state.myProfile || {};
-      els.profileNickname.value = p.nickname || '';
-      els.profileUsername.value = p.username || '';
-      els.profileBio.value = p.bio || '';
+    function fillProfileForm() {
+      els.profileNickname.value = state.myProfile?.nickname || '';
+      els.profileUsername.value = state.myProfile?.username || '';
+      els.profileBio.value = state.myProfile?.bio || '';
       els.profileEmail.value = state.user?.email || '';
+      els.avatarPreview.textContent = state.selectedAvatarFile ? state.selectedAvatarFile.name : (state.myProfile?.avatar_url ? 'Текущий аватар установлен' : 'Аватар не выбран');
+    }
+
+    async function uploadAvatar(file) {
+      const path = `${state.user.id}/${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
+      const { error } = await supabase.storage.from('avatars').upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+      return data.publicUrl;
     }
 
     async function saveProfile() {
+      if (state.busyProfileSave) return;
+      state.busyProfileSave = true;
+      els.saveProfileBtn.disabled = true;
       try {
         let avatarUrl = state.myProfile?.avatar_url || '';
-        const file = els.avatarFile.files?.[0];
-        if (file) {
-          const path = `${state.user.id}/${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
-          const { error: uploadError } = await supabase.storage.from('avatars').upload(path, file, { upsert: true });
-          if (uploadError) throw uploadError;
-          const { data: publicData } = supabase.storage.from('avatars').getPublicUrl(path);
-          avatarUrl = publicData.publicUrl;
+        if (state.selectedAvatarFile) {
+          avatarUrl = await uploadAvatar(state.selectedAvatarFile);
         }
-
         const payload = {
           user_id: state.user.id,
           nickname: els.profileNickname.value.trim() || 'User',
           username: normalizeUsername(els.profileUsername.value || els.profileNickname.value),
           bio: els.profileBio.value.trim(),
           avatar_url: avatarUrl,
+          reports_count: Number(state.myProfile?.reports_count || 0),
           updated_at: new Date().toISOString(),
         };
-
         const { data, error } = await supabase.from('profiles').upsert(payload).select().single();
         if (error) throw error;
+        state.selectedAvatarFile = null;
         state.myProfile = data;
         await loadProfiles();
-        renderSelfHeader();
-        closeAllModals();
-        showToast('Профиль сохранён');
-        await loadChats();
+        renderSelf();
+        fillProfileForm();
+        await loadChats(false);
         if (state.activeChatId) await loadMessages(state.activeChatId, false);
-      } catch (err) {
-        console.error(err);
-        showToast(err.message || 'Ошибка сохранения профиля', 'error');
+        closeModals();
+        toast('Профиль сохранён');
+      } catch (e) {
+        console.error(e);
+        toast('Ошибка сохранения профиля');
+      } finally {
+        state.busyProfileSave = false;
+        els.saveProfileBtn.disabled = false;
       }
     }
 
-    async function loadChats() {
-      const search = els.chatSearch.value.trim().toLowerCase();
-      const { data: myMembers, error: myMembersError } = await supabase
-        .from('conversation_members')
-        .select('conversation_id')
-        .eq('user_id', state.user.id);
-      if (myMembersError) throw myMembersError;
-
+    async function loadChats(resetIfMissing = false) {
+      const { data: myMembers, error: memberErr } = await supabase.from('conversation_members').select('conversation_id').eq('user_id', state.user.id);
+      if (memberErr) throw memberErr;
       const ids = [...new Set((myMembers || []).map(x => x.conversation_id))];
       if (!ids.length) {
         state.chats = [];
         state.chatMembers = {};
         renderChatList();
+        if (resetIfMissing) renderEmpty();
         return;
       }
-
-      const { data: conversations, error: convError } = await supabase
-        .from('conversations')
-        .select('*')
-        .in('id', ids)
-        .order('updated_at', { ascending: false });
-      if (convError) throw convError;
-
-      const { data: members, error: membersError } = await supabase
-        .from('conversation_members')
-        .select('*')
-        .in('conversation_id', ids);
-      if (membersError) throw membersError;
-
+      const { data: conversations, error: convErr } = await supabase.from('conversations').select('*').in('id', ids).order('updated_at', { ascending: false });
+      if (convErr) throw convErr;
+      const { data: members, error: membersErr } = await supabase.from('conversation_members').select('*').in('conversation_id', ids);
+      if (membersErr) throw membersErr;
       const membersMap = {};
       for (const m of members || []) {
         if (!membersMap[m.conversation_id]) membersMap[m.conversation_id] = [];
         membersMap[m.conversation_id].push(m);
       }
       state.chatMembers = membersMap;
-
-      state.chats = (conversations || []).map(c => ({ ...c, members: membersMap[c.id] || [] }));
-
-      if (search) {
-        state.chats = state.chats.filter(c => chatTitle(c).toLowerCase().includes(search));
-      }
-
+      const term = els.chatSearch.value.trim().toLowerCase();
+      state.chats = (conversations || []).map(c => ({ ...c, members: membersMap[c.id] || [] }))
+        .filter(c => !term || getChatTitle(c).toLowerCase().includes(term) || getChatSubtitle(c).toLowerCase().includes(term));
       renderChatList();
-
       if (state.activeChatId && !state.chats.some(c => c.id === state.activeChatId)) {
         state.activeChatId = null;
-        renderEmptyChat();
+        renderEmpty();
       }
     }
 
-    function chatTitle(chat) {
-      if (chat.type === 'group') return chat.title || 'Новая группа';
+    function getChatTitle(chat) {
+      if (chat.type === 'group') return chat.title || 'Группа';
       const other = (chat.members || []).find(m => m.user_id !== state.user.id);
-      const profile = other ? state.profilesMap.get(other.user_id) : null;
-      return nameOfProfile(profile, 'Новый чат');
+      return displayName(state.profilesMap.get(other?.user_id), 'Новый чат');
     }
 
-    function chatSubtitle(chat) {
-      if (chat.type === 'group') {
-        const count = (chat.members || []).length;
-        return `${count} участников`;
-      }
+    function getChatSubtitle(chat) {
+      if (chat.type === 'group') return `${(chat.members || []).length} участников`;
       const other = (chat.members || []).find(m => m.user_id !== state.user.id);
-      const profile = other ? state.profilesMap.get(other.user_id) : null;
-      return userShort(profile);
+      return displayHandle(state.profilesMap.get(other?.user_id));
     }
 
-    function chatAvatar(chat) {
-      if (chat.type === 'group') return { url: '', text: (chat.title || 'G').slice(0, 1) };
+    function getChatAvatar(chat) {
+      if (chat.type === 'group') return { url: '', text: (chat.title || 'G')[0] || 'G' };
       const other = (chat.members || []).find(m => m.user_id !== state.user.id);
-      const profile = other ? state.profilesMap.get(other.user_id) : null;
-      return { url: profile?.avatar_url || '', text: nameOfProfile(profile, 'U') };
+      const p = state.profilesMap.get(other?.user_id);
+      return { url: p?.avatar_url || '', text: displayName(p, 'U')[0] || 'U' };
     }
 
     function renderChatList() {
       if (!state.chats.length) {
-        els.chatList.innerHTML = `<div class="empty-state" style="height:auto; min-height: 180px;"><div><div style="font-size:20px;color:var(--text);margin-bottom:8px;">Пока пусто</div><div>Создай первый чат.</div></div></div>`;
+        els.chatList.innerHTML = `<div class="empty"><div>Чатов пока нет</div></div>`;
         return;
       }
-
       els.chatList.innerHTML = state.chats.map(chat => {
-        const avatar = chatAvatar(chat);
-        const lastTime = formatTime(chat.updated_at);
+        const avatar = getChatAvatar(chat);
         const unread = state.unreadCounts[chat.id] || 0;
         return `
           <div class="chat-item ${state.activeChatId === chat.id ? 'active' : ''}" data-chat-id="${chat.id}">
-            <div class="avatar">${avatarMarkup(avatar.url, avatar.text)}</div>
+            <div class="avatar">${avatarHTML(avatar.url, avatar.text)}</div>
             <div style="min-width:0;">
-              <div class="title" style="font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(chatTitle(chat))}</div>
-              <div class="preview">${escapeHtml(chatSubtitle(chat))}</div>
+              <div class="chat-name">${escapeHtml(getChatTitle(chat))}</div>
+              <div class="chat-preview">${escapeHtml(getChatSubtitle(chat))}</div>
             </div>
-            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
-              <div class="meta">${escapeHtml(lastTime)}</div>
+            <div class="chat-meta">
+              <div>${escapeHtml(formatTime(chat.updated_at))}</div>
               ${unread ? `<div class="unread-badge">${unread}</div>` : ''}
             </div>
-          </div>
-        `;
+          </div>`;
       }).join('');
-
-      els.chatList.querySelectorAll('[data-chat-id]').forEach(node => {
-        node.addEventListener('click', () => openChat(node.dataset.chatId));
-      });
     }
 
-    function renderEmptyChat() {
-      els.activeChatAvatar.innerHTML = avatarMarkup('', 'C');
+    function renderEmpty() {
+      els.activeChatAvatar.innerHTML = avatarHTML('', 'C');
       els.activeChatTitle.textContent = 'Выбери чат';
-      els.activeChatSubtitle.textContent = 'Личные данные скрыты. Видны только публичные поля профиля.';
-      els.messagesWrap.innerHTML = `
-        <div class="empty-state">
-          <div>
-            <h2 style="margin:0 0 8px; color: var(--text);">Ничего не открыто</h2>
-            <div>Создай личный чат или группу слева.</div>
-          </div>
-        </div>`;
-      clearPoller();
+      els.activeChatSubtitle.textContent = 'Профиль и сообщения';
+      els.messagesWrap.innerHTML = `<div class="empty"><div>Выбери чат или создай новый.</div></div>`;
+      state.activeProfileUserId = null;
     }
 
     async function openChat(chatId) {
@@ -1433,61 +1019,47 @@
       state.unreadCounts[chatId] = 0;
       const chat = state.chats.find(c => c.id === chatId);
       if (!chat) return;
-
-      if (window.innerWidth <= 1080) {
-        document.body.classList.add('mobile-chat-open');
+      if (window.innerWidth <= 980) document.body.classList.add('mobile-chat-open');
+      const avatar = getChatAvatar(chat);
+      els.activeChatAvatar.innerHTML = avatarHTML(avatar.url, avatar.text);
+      els.activeChatTitle.textContent = getChatTitle(chat);
+      els.activeChatSubtitle.textContent = getChatSubtitle(chat);
+      if (chat.type === 'direct') {
+        const other = (chat.members || []).find(m => m.user_id !== state.user.id);
+        state.activeProfileUserId = other?.user_id || null;
+      } else {
+        state.activeProfileUserId = null;
       }
-
-      const avatar = chatAvatar(chat);
-      els.activeChatAvatar.innerHTML = avatarMarkup(avatar.url, avatar.text);
-      els.activeChatTitle.textContent = chatTitle(chat);
-      els.activeChatSubtitle.textContent = chatSubtitle(chat);
       renderChatList();
       await loadMessages(chatId, true);
-      startChatPolling();
     }
 
     async function loadMessages(chatId, scrollToBottom = false) {
-      const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('conversation_id', chatId)
-        .order('created_at', { ascending: true });
-      if (error) {
-        console.error(error);
-        return;
-      }
+      const { data, error } = await supabase.from('messages').select('*').eq('conversation_id', chatId).order('created_at', { ascending: true });
+      if (error) throw error;
       state.activeMessages = data || [];
       renderMessages(scrollToBottom);
     }
 
     function renderMessages(scrollToBottom = false) {
       if (!state.activeMessages.length) {
-        els.messagesWrap.innerHTML = `<div class="empty-state"><div><div style="font-size:20px;color:var(--text);margin-bottom:8px;">Сообщений пока нет</div><div>Напиши первое сообщение.</div></div></div>`;
+        els.messagesWrap.innerHTML = `<div class="empty"><div>Сообщений пока нет</div></div>`;
         return;
       }
-
       els.messagesWrap.innerHTML = state.activeMessages.map(msg => {
         const mine = msg.sender_id === state.user.id;
-        const profile = state.profilesMap.get(msg.sender_id);
-        const attach = msg.attachment_url
-          ? `<a class="attach-link" href="${escapeHtml(msg.attachment_url)}" target="_blank" rel="noopener noreferrer">📎 ${escapeHtml(msg.attachment_name || 'Файл')}</a>`
-          : '';
+        const p = state.profilesMap.get(msg.sender_id);
         return `
-          <div class="message ${mine ? 'mine' : ''}">
-            <div class="message-head">
-              <span>${escapeHtml(nameOfProfile(profile, 'User'))}</span>
+          <div class="msg ${mine ? 'mine' : ''}">
+            <div class="msg-head">
+              <span>${nameWithRep(p, 'User')}</span>
               <span>${escapeHtml(formatTime(msg.created_at))}</span>
             </div>
-            <div class="message-text">${escapeHtml(msg.body || '')}</div>
-            ${attach}
-          </div>
-        `;
+            <div class="msg-body">${escapeHtml(msg.body || '')}</div>
+            ${msg.attachment_url ? `<a class="attach-link" href="${escapeHtml(msg.attachment_url)}" target="_blank" rel="noopener noreferrer">📎 ${escapeHtml(msg.attachment_name || 'Файл')}</a>` : ''}
+          </div>`;
       }).join('');
-
-      if (scrollToBottom) {
-        els.messagesWrap.scrollTop = els.messagesWrap.scrollHeight;
-      }
+      if (scrollToBottom) els.messagesWrap.scrollTop = els.messagesWrap.scrollHeight;
     }
 
     async function uploadMessageFile(file) {
@@ -1495,220 +1067,237 @@
       const { error } = await supabase.storage.from('messenger-files').upload(path, file, { upsert: true });
       if (error) throw error;
       const { data } = supabase.storage.from('messenger-files').getPublicUrl(path);
-      return { url: data.publicUrl, name: file.name, mime: file.type || 'application/octet-stream' };
+      return { url: data.publicUrl, name: file.name, type: file.type || 'application/octet-stream' };
     }
 
     async function sendMessage() {
+      if (state.busySend) return;
+      if (!state.activeChatId) { toast('Сначала открой чат'); return; }
+      const body = els.messageInput.value.trim();
+      const file = state.selectedMessageFile;
+      if (!body && !file) { toast('Сообщение пустое'); return; }
+      state.busySend = true;
+      els.sendBtn.disabled = true;
       try {
-        if (!state.activeChatId) {
-          showToast('Сначала открой чат', 'error');
-          return;
-        }
-        const body = els.messageInput.value.trim();
-        const file = state.fileToSend;
-        if (!body && !file) {
-          showToast('Сообщение пустое', 'error');
-          return;
-        }
-
         let attachment = null;
         if (file) attachment = await uploadMessageFile(file);
-
         const payload = {
           conversation_id: state.activeChatId,
           sender_id: state.user.id,
           body,
           attachment_url: attachment?.url || null,
           attachment_name: attachment?.name || null,
-          attachment_type: attachment?.mime || null,
+          attachment_type: attachment?.type || null,
         };
-
         const { error } = await supabase.from('messages').insert(payload);
         if (error) throw error;
-
         await supabase.from('conversations').update({ updated_at: new Date().toISOString() }).eq('id', state.activeChatId);
-
         els.messageInput.value = '';
-        state.fileToSend = null;
-        els.messageFile.value = '';
-        els.fileNameLine.textContent = 'Файл не выбран';
+        clearMessageFile();
+        await loadChats(false);
         await loadMessages(state.activeChatId, true);
-        await loadChats();
-      } catch (err) {
-        console.error(err);
-        showToast(err.message || 'Ошибка отправки', 'error');
+      } catch (e) {
+        console.error(e);
+        toast('Ошибка отправки');
+      } finally {
+        state.busySend = false;
+        els.sendBtn.disabled = false;
       }
     }
 
-    async function openUsersModal() {
-      try {
-        await loadProfiles();
-        renderUsersList();
-        openModal('newChatModal');
-      } catch (err) {
-        console.error(err);
-        showToast('Не удалось загрузить пользователей', 'error');
-      }
+    function clearMessageFile() {
+      state.selectedMessageFile = null;
+      els.messageFile.value = '';
+      els.fileNameLine.textContent = 'Файл не выбран';
     }
 
-    function renderUsersList() {
-      const search = els.userSearch.value.trim().toLowerCase();
-      const users = state.profiles
-        .filter(p => p.user_id !== state.user.id)
-        .filter(p => !search || nameOfProfile(p).toLowerCase().includes(search) || (p.username || '').toLowerCase().includes(search));
+    async function openNewChatModal() {
+      await loadProfiles();
+      renderUserList();
+      showModal('newChatModal');
+    }
 
+    function renderUserList() {
+      const term = els.userSearch.value.trim().toLowerCase();
+      const users = state.profiles.filter(p => p.user_id !== state.user.id)
+        .filter(p => !term || displayName(p).toLowerCase().includes(term) || displayHandle(p).toLowerCase().includes(term));
       if (!users.length) {
-        els.userList.innerHTML = `<div class="empty-state" style="height:auto;min-height:180px;"><div><div style="font-size:20px;color:var(--text);margin-bottom:8px;">Никого не найдено</div></div></div>`;
+        els.userList.innerHTML = `<div class="empty"><div>Никого не найдено</div></div>`;
         return;
       }
-
       els.userList.innerHTML = users.map(p => `
         <div class="user-row">
-          <div class="avatar">${avatarMarkup(p.avatar_url, nameOfProfile(p, 'U'))}</div>
+          <div class="avatar">${avatarHTML(p.avatar_url, displayName(p,'U')[0] || 'U')}</div>
           <div>
-            <div style="font-weight:700;">${escapeHtml(nameOfProfile(p, 'User'))}</div>
-            <div class="tiny">${escapeHtml(userShort(p))}</div>
+            <div class="user-title">${nameWithRep(p, 'User')}</div>
+            <div class="user-sub">${escapeHtml(displayHandle(p))}</div>
           </div>
-          <button class="primary-btn" data-start-chat="${p.user_id}">Чат</button>
-        </div>
-      `).join('');
-
-      els.userList.querySelectorAll('[data-start-chat]').forEach(btn => {
-        btn.addEventListener('click', () => startDirectChat(btn.dataset.startChat));
-      });
+          <button class="btn btn-primary" data-start-chat="${p.user_id}">Чат</button>
+        </div>`).join('');
     }
 
     async function startDirectChat(otherUserId) {
-      try {
-        const existing = state.chats.find(c => c.type === 'direct' && (c.members || []).some(m => m.user_id === otherUserId));
-        if (existing) {
-          closeAllModals();
-          await openChat(existing.id);
-          return;
-        }
-
-        const { data: convo, error: convoError } = await supabase
-          .from('conversations')
-          .insert({ type: 'direct', created_by: state.user.id, title: '', updated_at: new Date().toISOString() })
-          .select()
-          .single();
-        if (convoError) throw convoError;
-
-        const membersPayload = [
-          { conversation_id: convo.id, user_id: state.user.id, role: 'owner' },
-          { conversation_id: convo.id, user_id: otherUserId, role: 'member' },
-        ];
-
-        const { error: membersError } = await supabase.from('conversation_members').insert(membersPayload);
-        if (membersError) throw membersError;
-
-        closeAllModals();
-        await loadChats();
-        await openChat(convo.id);
-        showToast('Чат создан');
-      } catch (err) {
-        console.error(err);
-        showToast(err.message || 'Не удалось создать чат', 'error');
+      const existing = state.chats.find(c => c.type === 'direct' && (c.members || []).some(m => m.user_id === otherUserId));
+      if (existing) {
+        closeModals();
+        await openChat(existing.id);
+        return;
       }
+      const { data: convo, error: convoErr } = await supabase.from('conversations').insert({ type: 'direct', title: '', created_by: state.user.id, updated_at: new Date().toISOString() }).select().single();
+      if (convoErr) throw convoErr;
+      const { error: membersErr } = await supabase.from('conversation_members').insert([
+        { conversation_id: convo.id, user_id: state.user.id, role: 'owner' },
+        { conversation_id: convo.id, user_id: otherUserId, role: 'member' },
+      ]);
+      if (membersErr) throw membersErr;
+      closeModals();
+      await loadChats(false);
+      await openChat(convo.id);
+      toast('Чат создан');
     }
 
     async function openGroupModal() {
-      try {
-        await loadProfiles();
-        renderGroupUsers();
-        openModal('newGroupModal');
-      } catch (err) {
-        console.error(err);
-        showToast('Не удалось открыть создание группы', 'error');
-      }
+      await loadProfiles();
+      renderGroupUsers();
+      showModal('newGroupModal');
     }
 
     function renderGroupUsers() {
-      const search = els.groupUserSearch.value.trim().toLowerCase();
-      const users = state.profiles
-        .filter(p => p.user_id !== state.user.id)
-        .filter(p => !search || nameOfProfile(p).toLowerCase().includes(search) || (p.username || '').toLowerCase().includes(search));
-
+      const term = els.groupUserSearch.value.trim().toLowerCase();
+      const users = state.profiles.filter(p => p.user_id !== state.user.id)
+        .filter(p => !term || displayName(p).toLowerCase().includes(term) || displayHandle(p).toLowerCase().includes(term));
       els.groupUsersList.innerHTML = users.map(p => `
         <label class="user-row">
-          <div class="avatar">${avatarMarkup(p.avatar_url, nameOfProfile(p, 'U'))}</div>
+          <div class="avatar">${avatarHTML(p.avatar_url, displayName(p,'U')[0] || 'U')}</div>
           <div>
-            <div style="font-weight:700;">${escapeHtml(nameOfProfile(p, 'User'))}</div>
-            <div class="tiny">${escapeHtml(userShort(p))}</div>
+            <div class="user-title">${nameWithRep(p, 'User')}</div>
+            <div class="user-sub">${escapeHtml(displayHandle(p))}</div>
           </div>
-          <input type="checkbox" value="${p.user_id}" />
-        </label>
-      `).join('');
+          <input type="checkbox" value="${p.user_id}">
+        </label>`).join('');
     }
 
     async function createGroup() {
+      const title = els.groupTitle.value.trim() || 'Новая группа';
+      const userIds = [...els.groupUsersList.querySelectorAll('input:checked')].map(x => x.value);
+      if (!userIds.length) {
+        toast('Выбери хотя бы одного пользователя');
+        return;
+      }
+      const { data: convo, error: convoErr } = await supabase.from('conversations').insert({ type: 'group', title, created_by: state.user.id, updated_at: new Date().toISOString() }).select().single();
+      if (convoErr) throw convoErr;
+      const rows = [state.user.id, ...userIds].map((uid, i) => ({ conversation_id: convo.id, user_id: uid, role: i === 0 ? 'owner' : 'member' }));
+      const { error: membersErr } = await supabase.from('conversation_members').insert(rows);
+      if (membersErr) throw membersErr;
+      els.groupTitle.value = '';
+      closeModals();
+      await loadChats(false);
+      await openChat(convo.id);
+      toast('Группа создана');
+    }
+
+    function askNotificationPermission() {
       try {
-        const title = els.groupTitle.value.trim() || 'Новая группа';
-        const checked = [...els.groupUsersList.querySelectorAll('input[type="checkbox"]:checked')].map(x => x.value);
-        if (!checked.length) {
-          showToast('Выбери хотя бы одного пользователя', 'error');
-          return;
+        if ('Notification' in window && Notification.permission === 'default') {
+          Notification.requestPermission().catch(() => {});
         }
+      } catch (e) { console.error(e); }
+    }
 
-        const { data: convo, error: convoError } = await supabase
-          .from('conversations')
-          .insert({ type: 'group', title, created_by: state.user.id, updated_at: new Date().toISOString() })
-          .select()
-          .single();
-        if (convoError) throw convoError;
+    async function checkForNewMessages() {
+      try {
+        if (!state.user || !state.chats.length) return;
+        const ids = state.chats.map(c => c.id);
+        if (!ids.length) return;
+        const since = state.lastMessageSeenAt || new Date().toISOString();
+        const { data, error } = await supabase.from('messages').select('*').in('conversation_id', ids).gt('created_at', since).order('created_at', { ascending: true });
+        if (error) throw error;
+        if (data && data.length) {
+          for (const msg of data) {
+            if (msg.sender_id === state.user.id) continue;
+            if (msg.conversation_id !== state.activeChatId) {
+              state.unreadCounts[msg.conversation_id] = (state.unreadCounts[msg.conversation_id] || 0) + 1;
+              const chat = state.chats.find(c => c.id === msg.conversation_id);
+              const title = chat ? getChatTitle(chat) : 'Messenger';
+              toast(`Новое сообщение: ${title}`);
+              if ('Notification' in window && Notification.permission === 'granted' && document.hidden) {
+                new Notification(title, { body: msg.body || msg.attachment_name || 'Новое сообщение' });
+              }
+            }
+          }
+          state.lastMessageSeenAt = data[data.length - 1].created_at;
+          renderChatList();
+        }
+      } catch (e) { console.error(e); }
+    }
 
-        const membersPayload = [state.user.id, ...checked].map((userId, idx) => ({
-          conversation_id: convo.id,
-          user_id: userId,
-          role: idx === 0 ? 'owner' : 'member'
-        }));
+    function openProfileView(userId) {
+      const p = state.profilesMap.get(userId);
+      if (!p) return;
+      els.viewProfileContent.innerHTML = `
+        <div class="profile-view">
+          <div class="avatar">${avatarHTML(p.avatar_url, displayName(p,'U')[0] || 'U')}</div>
+          <div>
+            <div style="font-size:24px;font-weight:700;">${nameWithRep(p, 'User')}</div>
+            <div class="tiny" style="margin-top:6px;">${escapeHtml(displayHandle(p))}</div>
+            <div class="tiny" style="margin-top:6px;">Репортов: ${escapeHtml(String(p.reports_count || 0))}</div>
+            <div style="margin-top:14px; white-space:pre-wrap; line-height:1.6;">${escapeHtml(p.bio || 'Нет описания')}</div>
+            <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+              ${userId !== state.user.id ? `<button id="reportFakeBtn" class="btn btn-secondary">Report Fake</button><button id="reportScamBtn" class="btn btn-danger">Report Scam</button>` : ''}
+            </div>
+          </div>
+        </div>`;
+      showModal('viewProfileModal');
+      const fakeBtn = document.getElementById('reportFakeBtn');
+      const scamBtn = document.getElementById('reportScamBtn');
+      if (fakeBtn) fakeBtn.addEventListener('click', () => sendReport(userId, 'fake'));
+      if (scamBtn) scamBtn.addEventListener('click', () => sendReport(userId, 'scam'));
+    }
 
-        const { error: membersError } = await supabase.from('conversation_members').insert(membersPayload);
-        if (membersError) throw membersError;
-
-        els.groupTitle.value = '';
-        closeAllModals();
-        await loadChats();
-        await openChat(convo.id);
-        showToast('Группа создана');
-      } catch (err) {
-        console.error(err);
-        showToast(err.message || 'Ошибка создания группы', 'error');
+    async function sendReport(targetUserId, type) {
+      try {
+        if (targetUserId === state.user.id) return;
+        const { error } = await supabase.from('profile_reports').upsert({
+          reporter_id: state.user.id,
+          target_user_id: targetUserId,
+          report_type: type,
+          created_at: new Date().toISOString(),
+        });
+        if (error) throw error;
+        const target = state.profilesMap.get(targetUserId);
+        const nextCount = Number(target?.reports_count || 0) + 1;
+        const { error: updateError } = await supabase.from('profiles').update({ reports_count: nextCount, updated_at: new Date().toISOString() }).eq('user_id', targetUserId);
+        if (updateError) throw updateError;
+        await loadProfiles();
+        renderSelf();
+        await loadChats(false);
+        if (state.activeChatId) await loadMessages(state.activeChatId, false);
+        openProfileView(targetUserId);
+        toast('Репорт отправлен');
+      } catch (e) {
+        console.error(e);
+        toast('Не удалось отправить репорт');
       }
     }
 
-    function bindEvents() {
-      els.registerTab.addEventListener('click', () => setAuthMode('register'));
-      els.loginTab.addEventListener('click', () => setAuthMode('login'));
+    function bindStaticEvents() {
+      els.registerTab.addEventListener('click', () => setAuthTab('register'));
+      els.loginTab.addEventListener('click', () => setAuthTab('login'));
       els.registerBtn.addEventListener('click', registerUser);
       els.loginBtn.addEventListener('click', loginUser);
       els.logoutBtn.addEventListener('click', logoutUser);
-      els.profileBtn.addEventListener('click', () => { fillProfileModal(); openModal('profileModal'); });
-      els.saveProfileBtn.addEventListener('click', saveProfile);
-      els.newChatBtn.addEventListener('click', openUsersModal);
+      els.chatSearch.addEventListener('input', () => loadChats(false));
+      els.newChatBtn.addEventListener('click', openNewChatModal);
       els.newGroupBtn.addEventListener('click', openGroupModal);
-      els.createGroupBtn.addEventListener('click', createGroup);
-      els.userSearch.addEventListener('input', renderUsersList);
-      els.groupUserSearch.addEventListener('input', renderGroupUsers);
-      els.chatSearch.addEventListener('input', loadChats);
-      els.sendBtn.addEventListener('click', sendMessage);
-      els.mobileBackBtn.addEventListener('click', () => {
-        document.body.classList.remove('mobile-chat-open');
+      els.profileBtn.addEventListener('click', () => { fillProfileForm(); showModal('profileModal'); });
+      els.selfProfileChip.addEventListener('click', () => openProfileView(state.user.id));
+      els.activeProfileChip.addEventListener('click', () => { if (state.activeProfileUserId) openProfileView(state.activeProfileUserId); });
+      els.mobileBackBtn.addEventListener('click', () => document.body.classList.remove('mobile-chat-open'));
+      els.refreshBtn.addEventListener('click', async () => {
+        await loadChats(false);
+        if (state.activeChatId) await loadMessages(state.activeChatId, false);
+        toast('Обновлено');
       });
-      els.toggleAutoRefreshBtn.addEventListener('click', async () => {
-        state.autoRefresh = !state.autoRefresh;
-        applyRefreshModeUi();
-        if (state.activeChatId) {
-          if (state.autoRefresh) {
-            await loadMessages(state.activeChatId, false);
-            startChatPolling();
-          } else {
-            clearPoller();
-          }
-        }
-        showToast(state.autoRefresh ? 'Автообновление включено' : 'Автообновление выключено');
-      });
-      els.refreshChatsBtn.addEventListener('click', async () => { await loadChats(); if (state.activeChatId) await loadMessages(state.activeChatId, false); showToast('Обновлено'); });
       els.messageInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
@@ -1716,47 +1305,72 @@
         }
       });
       els.messageFile.addEventListener('change', () => {
-        state.fileToSend = els.messageFile.files?.[0] || null;
-        els.fileNameLine.textContent = state.fileToSend ? state.fileToSend.name : 'Файл не выбран';
+        state.selectedMessageFile = els.messageFile.files?.[0] || null;
+        els.fileNameLine.textContent = state.selectedMessageFile ? state.selectedMessageFile.name : 'Файл не выбран';
       });
-      els.clearFileBtn.addEventListener('click', () => {
-        state.fileToSend = null;
-        els.messageFile.value = '';
-        els.fileNameLine.textContent = 'Файл не выбран';
+      els.clearFileBtn.addEventListener('click', clearMessageFile);
+      els.clearFileBtnMobile.addEventListener('click', clearMessageFile);
+      els.sendBtn.addEventListener('click', sendMessage);
+      els.userSearch.addEventListener('input', renderUserList);
+      els.groupUserSearch.addEventListener('input', renderGroupUsers);
+      els.createGroupBtn.addEventListener('click', createGroup);
+      els.saveProfileBtn.addEventListener('click', saveProfile);
+      els.avatarDropzone.addEventListener('click', () => els.avatarFile.click());
+      els.avatarFile.addEventListener('change', () => {
+        state.selectedAvatarFile = els.avatarFile.files?.[0] || null;
+        fillProfileForm();
       });
-
-      document.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', closeAllModals));
-      document.querySelectorAll('.modal').forEach(modal => {
-        modal.addEventListener('click', (e) => {
-          if (e.target === modal) closeAllModals();
-        });
+      ['dragenter','dragover'].forEach(evt => els.avatarDropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        els.avatarDropzone.classList.add('dragover');
+      }));
+      ['dragleave','drop'].forEach(evt => els.avatarDropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        els.avatarDropzone.classList.remove('dragover');
+      }));
+      els.avatarDropzone.addEventListener('drop', (e) => {
+        const file = e.dataTransfer?.files?.[0];
+        if (file) {
+          state.selectedAvatarFile = file;
+          fillProfileForm();
+        }
+      });
+      document.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', closeModals));
+      document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', (e) => { if (e.target === m) closeModals(); }));
+      els.chatList.addEventListener('click', async (e) => {
+        const item = e.target.closest('[data-chat-id]');
+        if (!item) return;
+        await openChat(item.dataset.chatId);
+      });
+      els.userList.addEventListener('click', async (e) => {
+        const btn = e.target.closest('[data-start-chat]');
+        if (!btn) return;
+        await startDirectChat(btn.dataset.startChat);
       });
     }
 
     async function init() {
-      applyRefreshModeUi();
-      bindEvents();
-      setAuthMode('register');
-      renderEmptyChat();
+      bindStaticEvents();
+      setAuthTab('register');
+      renderEmpty();
       const { data, error } = await supabase.auth.getSession();
       if (error) {
         console.error(error);
-        showAuthView();
+        showAuth();
         return;
       }
       if (data.session?.user) {
         state.user = data.session.user;
         await bootApp();
       } else {
-        showAuthView();
+        showAuth();
       }
-
       supabase.auth.onAuthStateChange(async (_event, session) => {
         if (session?.user) {
           state.user = session.user;
           await bootApp();
         } else {
-          showAuthView();
+          showAuth();
         }
       });
     }
