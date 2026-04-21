@@ -7,7 +7,6 @@
   <style>
     :root {
       --bg: #0e1621;
-      --bg-chat: #0b141a;
       --panel: #17212b;
       --panel-2: #1f2c39;
       --line: #22303d;
@@ -15,13 +14,10 @@
       --muted: #8ea1b3;
       --blue: #2aabee;
       --danger: #ef5350;
-      --danger-bg: #3b2227;
       --bubble-me: #2b5278;
       --bubble-other: #182533;
       --menu-width: 280px;
-      --sidebar-width: 320px;
     }
-
     * { box-sizing: border-box; }
     html, body { height: 100%; }
     body {
@@ -33,9 +29,8 @@
     }
     .hidden { display: none !important; }
     .mobile-only { display: none; }
-    button, input, textarea, select { font: inherit; }
-
-    input, textarea, select {
+    button, input, textarea { font: inherit; }
+    input, textarea {
       width: 100%;
       border: 1px solid var(--line);
       background: #101922;
@@ -44,10 +39,9 @@
       padding: 12px 14px;
       outline: none;
     }
-    input::placeholder, textarea::placeholder { color: #6f8396; }
-    input:focus, textarea:focus, select:focus { border-color: var(--blue); }
     textarea { resize: vertical; min-height: 52px; }
-
+    input::placeholder, textarea::placeholder { color: #6f8396; }
+    input:focus, textarea:focus { border-color: var(--blue); }
     .btn {
       border: 0;
       border-radius: 10px;
@@ -57,20 +51,16 @@
     }
     .btn:hover { opacity: .92; }
     .btn:disabled { opacity: .55; cursor: default; }
-    .btn-primary { background: var(--blue); color: white; }
+    .btn-primary { background: var(--blue); color: #fff; }
     .btn-secondary { background: #223140; color: var(--text); }
-    .btn-danger { background: var(--danger-bg); color: #ffc7c7; }
+    .btn-danger { background: #402126; color: #ffc7c7; }
     .icon-btn {
       width: 40px;
       height: 40px;
-      padding: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: transparent;
-      color: var(--text);
       border: 0;
       border-radius: 8px;
+      background: transparent;
+      color: var(--text);
       cursor: pointer;
     }
     .icon-btn:hover { background: rgba(255,255,255,.06); }
@@ -95,8 +85,8 @@
       border-right: 1px solid var(--line);
       background: linear-gradient(180deg, #17212b, #121c26);
     }
-    .auth-side h1 { margin: 0 0 12px; font-size: 40px; line-height: 1; }
-    .auth-side p { color: var(--muted); margin: 0; line-height: 1.6; }
+    .auth-side h1 { margin: 0 0 12px; font-size: 40px; }
+    .auth-side p { margin: 0; color: var(--muted); line-height: 1.6; }
     .auth-main { padding: 24px; }
     .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
     .tab-btn {
@@ -116,63 +106,18 @@
     .app-shell {
       height: 100vh;
       display: grid;
-      grid-template-columns: 72px var(--sidebar-width) 1fr;
-      background: var(--bg);
+      grid-template-columns: 330px 1fr;
     }
-
-    .nav-rail {
-      background: #121b24;
-      border-right: 1px solid rgba(255,255,255,.04);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-      padding: 10px 8px;
-    }
-    .rail-top, .rail-bottom {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      width: 100%;
-    }
-    .rail-spacer { flex: 1; }
-    .rail-item {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      color: var(--muted);
-      font-size: 11px;
-      text-align: center;
-      cursor: pointer;
-      user-select: none;
-    }
-    .rail-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(255,255,255,.05);
-      font-size: 17px;
-    }
-    .rail-item.active .rail-icon,
-    .rail-item:hover .rail-icon { background: rgba(42,171,238,.18); color: white; }
-
     .sidebar {
       background: var(--panel);
       border-right: 1px solid rgba(255,255,255,.05);
       display: grid;
       grid-template-rows: auto 1fr;
       min-height: 0;
-      position: relative;
     }
     .sidebar-top {
       padding: 10px 12px;
-      border-bottom: 1px solid rgba(255,255,255,.04);
+      border-bottom: 1px solid rgba(255,255,255,.05);
       display: grid;
       gap: 10px;
     }
@@ -188,7 +133,6 @@
       padding: 10px 14px;
       color: white;
     }
-
     .chat-list { overflow: auto; min-height: 0; }
     .chat-item {
       display: grid;
@@ -257,7 +201,7 @@
       display: grid;
       grid-template-rows: 64px 1fr auto;
       min-height: 0;
-      background: var(--bg-chat);
+      background: #0b141a;
     }
     .topbar {
       display: flex;
@@ -265,7 +209,7 @@
       justify-content: space-between;
       gap: 12px;
       padding: 0 14px;
-      border-bottom: 1px solid rgba(255,255,255,.04);
+      border-bottom: 1px solid rgba(255,255,255,.05);
       background: var(--panel);
     }
     .topbar-left {
@@ -289,7 +233,6 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-
     .messages {
       overflow: auto;
       min-height: 0;
@@ -340,7 +283,7 @@
 
     .composer {
       padding: 12px;
-      border-top: 1px solid rgba(255,255,255,.04);
+      border-top: 1px solid rgba(255,255,255,.05);
       background: var(--panel);
       display: grid;
       gap: 10px;
@@ -381,7 +324,7 @@
       bottom: 0;
       width: var(--menu-width);
       background: var(--panel);
-      border-right: 1px solid rgba(255,255,255,.04);
+      border-right: 1px solid rgba(255,255,255,.05);
       transform: translateX(-100%);
       transition: transform .2s ease;
       z-index: 50;
@@ -391,17 +334,14 @@
     .left-menu.open { transform: translateX(0); }
     .menu-header {
       padding: 18px;
-      border-bottom: 1px solid rgba(255,255,255,.04);
+      border-bottom: 1px solid rgba(255,255,255,.05);
     }
     .menu-user {
       display: flex;
       align-items: center;
       gap: 12px;
     }
-    .menu-list {
-      padding: 8px 0;
-      overflow: auto;
-    }
+    .menu-list { padding: 8px 0; overflow: auto; }
     .menu-item {
       display: flex;
       align-items: center;
@@ -415,13 +355,13 @@
       padding: 16px 18px;
       color: var(--muted);
       font-size: 13px;
-      border-top: 1px solid rgba(255,255,255,.04);
+      border-top: 1px solid rgba(255,255,255,.05);
     }
 
     .modal {
       position: fixed;
       inset: 0;
-      background: rgba(6, 11, 16, .7);
+      background: rgba(6,11,16,.7);
       display: none;
       align-items: center;
       justify-content: center;
@@ -514,14 +454,12 @@
     @media (max-width: 980px) {
       .mobile-only { display: inline-flex; }
       .app-shell { grid-template-columns: 1fr; }
-      .nav-rail { display: none; }
       .sidebar, .main { height: 100svh; }
       body:not(.mobile-chat-open) .main { display: none; }
       body.mobile-chat-open .sidebar { display: none; }
       .composer-row { grid-template-columns: 1fr auto; }
       .composer-row .btn-hide-mobile { display: none; }
     }
-
     @media (max-width: 900px) {
       .auth-card { grid-template-columns: 1fr; }
       .auth-side { border-right: 0; border-bottom: 1px solid var(--line); }
@@ -535,7 +473,7 @@
   <div id="menuOverlay" class="menu-overlay"></div>
   <aside id="leftMenu" class="left-menu">
     <div class="menu-header">
-      <div id="menuUser" class="menu-user">
+      <div class="menu-user">
         <div id="menuAvatar" class="avatar">M</div>
         <div>
           <div id="menuName" class="user-title">—</div>
@@ -545,10 +483,9 @@
     </div>
     <div class="menu-list">
       <div id="menuProfile" class="menu-item">👤 <span>Мой профиль</span></div>
+      <div id="menuNewChat" class="menu-item">💬 <span>Новый чат</span></div>
       <div id="menuNewGroup" class="menu-item">👥 <span>Создать группу</span></div>
-      <div id="menuContacts" class="menu-item">📇 <span>Контакты</span></div>
-      <div id="menuSettings" class="menu-item">⚙️ <span>Настройки</span></div>
-      <div id="menuNight" class="menu-item">🌙 <span>Ночной режим</span></div>
+      <div id="menuLogout" class="menu-item">🚪 <span>Выйти</span></div>
     </div>
     <div class="menu-footer">Messenger Desktop<br>Пробная версия</div>
   </aside>
@@ -585,24 +522,12 @@
   </section>
 
   <section id="appView" class="app-shell hidden">
-    <div class="nav-rail">
-      <div class="rail-top">
-        <button id="menuBtn" class="icon-btn" title="Меню">☰</button>
-        <div class="rail-item active"><div class="rail-icon">💬</div><div>Чаты</div></div>
-        <div class="rail-item"><div class="rail-icon">👥</div><div>Люди</div></div>
-        <div class="rail-item"><div class="rail-icon">📁</div><div>Файлы</div></div>
-      </div>
-      <div class="rail-spacer"></div>
-      <div class="rail-bottom">
-        <div id="railProfile" class="rail-item"><div class="rail-icon">👤</div><div>Профиль</div></div>
-      </div>
-    </div>
-
     <aside class="sidebar">
       <div class="sidebar-top">
         <div class="sidebar-top-row">
-          <button id="mobileMenuBtn" class="icon-btn mobile-only" title="Меню">☰</button>
+          <button id="menuBtn" class="icon-btn" title="Меню">☰</button>
           <input id="chatSearch" class="search-input" placeholder="Поиск" />
+          <button id="newChatBtn" class="btn btn-primary">+</button>
         </div>
       </div>
       <div id="chatList" class="chat-list"></div>
@@ -733,16 +658,6 @@
 
     const els = {
       toast: document.getElementById('toast'),
-      menuBtn: document.getElementById('menuBtn'),
-      mobileMenuBtn: document.getElementById('mobileMenuBtn'),
-      leftMenu: document.getElementById('leftMenu'),
-      menuOverlay: document.getElementById('menuOverlay'),
-      menuAvatar: document.getElementById('menuAvatar'),
-      menuName: document.getElementById('menuName'),
-      menuUsername: document.getElementById('menuUsername'),
-      menuProfile: document.getElementById('menuProfile'),
-      menuNewGroup: document.getElementById('menuNewGroup'),
-      railProfile: document.getElementById('railProfile'),
       authView: document.getElementById('authView'),
       appView: document.getElementById('appView'),
       registerTab: document.getElementById('registerTab'),
@@ -759,9 +674,18 @@
       loginPassword: document.getElementById('loginPassword'),
       loginBtn: document.getElementById('loginBtn'),
       loginStatus: document.getElementById('loginStatus'),
+      menuBtn: document.getElementById('menuBtn'),
+      menuOverlay: document.getElementById('menuOverlay'),
+      leftMenu: document.getElementById('leftMenu'),
+      menuAvatar: document.getElementById('menuAvatar'),
+      menuName: document.getElementById('menuName'),
+      menuUsername: document.getElementById('menuUsername'),
+      menuProfile: document.getElementById('menuProfile'),
+      menuNewChat: document.getElementById('menuNewChat'),
+      menuNewGroup: document.getElementById('menuNewGroup'),
+      menuLogout: document.getElementById('menuLogout'),
       chatSearch: document.getElementById('chatSearch'),
       newChatBtn: document.getElementById('newChatBtn'),
-      newGroupBtn: document.getElementById('newGroupBtn'),
       chatList: document.getElementById('chatList'),
       activeProfileChip: document.getElementById('activeProfileChip'),
       activeChatAvatar: document.getElementById('activeChatAvatar'),
@@ -843,7 +767,7 @@
 
     function avatarHTML(url, fallback = '?') {
       if (url) return `<img src="${escapeHtml(url)}" alt="">`;
-      return escapeHtml(String(fallback).slice(0, 1).toUpperCase());
+      return escapeHtml(String(fallback).slice(0,1).toUpperCase());
     }
 
     function repInfo(profile) {
@@ -1133,11 +1057,14 @@
       els.chatList.innerHTML = state.chats.map(chat => {
         const avatar = getChatAvatar(chat);
         const unread = state.unreadCounts[chat.id] || 0;
+        const titleHtml = chat.type === 'direct'
+          ? nameWithRep(state.profilesMap.get((chat.members || []).find(m => m.user_id !== state.user.id)?.user_id), getChatTitle(chat))
+          : escapeHtml(getChatTitle(chat));
         return `
           <div class="chat-item ${state.activeChatId === chat.id ? 'active' : ''}" data-chat-id="${chat.id}">
             <div class="avatar">${avatarHTML(avatar.url, avatar.text)}</div>
             <div style="min-width:0;">
-              <div class="chat-name">${nameWithRep(chat.type === 'direct' ? state.profilesMap.get((chat.members || []).find(m => m.user_id !== state.user.id)?.user_id) : {nickname: getChatTitle(chat)}, getChatTitle(chat))}</div>
+              <div class="chat-name">${titleHtml}</div>
               <div class="chat-preview">${escapeHtml(getChatSubtitle(chat))}</div>
             </div>
             <div class="chat-meta">
@@ -1276,7 +1203,7 @@
           <div class="avatar">${avatarHTML(p.avatar_url, displayName(p,'U')[0] || 'U')}</div>
           <div>
             <div class="user-title">${nameWithRep(p, 'User')}</div>
-            <div class="user-sub">${escapeHtml(displayHandle(p))}</div>
+            <div class="tiny">${escapeHtml(displayHandle(p))}</div>
           </div>
           <button class="btn btn-primary" data-start-chat="${p.user_id}">Чат</button>
         </div>`).join('');
@@ -1318,7 +1245,7 @@
           <div class="avatar">${avatarHTML(p.avatar_url, displayName(p,'U')[0] || 'U')}</div>
           <div>
             <div class="user-title">${nameWithRep(p, 'User')}</div>
-            <div class="user-sub">${escapeHtml(displayHandle(p))}</div>
+            <div class="tiny">${escapeHtml(displayHandle(p))}</div>
           </div>
           <input type="checkbox" value="${p.user_id}">
         </label>`).join('');
@@ -1327,10 +1254,7 @@
     async function createGroup() {
       const title = els.groupTitle.value.trim() || 'Новая группа';
       const userIds = [...els.groupUsersList.querySelectorAll('input:checked')].map(x => x.value);
-      if (!userIds.length) {
-        toast('Выбери хотя бы одного пользователя');
-        return;
-      }
+      if (!userIds.length) { toast('Выбери хотя бы одного пользователя'); return; }
       const { data: convo, error: convoErr } = await supabase.from('conversations').insert({ type: 'group', title, created_by: state.user.id, updated_at: new Date().toISOString() }).select().single();
       if (convoErr) throw convoErr;
       const rows = [state.user.id, ...userIds].map((uid, i) => ({ conversation_id: convo.id, user_id: uid, role: i === 0 ? 'owner' : 'member' }));
@@ -1412,19 +1336,16 @@
           created_at: new Date().toISOString(),
         });
         if (error) throw error;
-
         const { count, error: countError } = await supabase
           .from('profile_reports')
           .select('*', { count: 'exact', head: true })
           .eq('target_user_id', targetUserId);
         if (countError) throw countError;
-
         const { error: updateError } = await supabase
           .from('profiles')
           .update({ reports_count: Number(count || 0), updated_at: new Date().toISOString() })
           .eq('user_id', targetUserId);
         if (updateError) throw updateError;
-
         await loadProfiles();
         renderSelf();
         await loadChats(false);
@@ -1444,13 +1365,12 @@
       els.loginBtn.addEventListener('click', loginUser);
       els.chatSearch.addEventListener('input', () => loadChats(false));
       els.newChatBtn.addEventListener('click', openNewChatModal);
-      els.newGroupBtn.addEventListener('click', openGroupModal);
       els.menuBtn.addEventListener('click', openMenu);
-      els.mobileMenuBtn.addEventListener('click', openMenu);
       els.menuOverlay.addEventListener('click', closeMenu);
       els.menuProfile.addEventListener('click', () => { fillProfileForm(); showModal('profileModal'); closeMenu(); });
+      els.menuNewChat.addEventListener('click', openNewChatModal);
       els.menuNewGroup.addEventListener('click', openGroupModal);
-      els.railProfile.addEventListener('click', () => { fillProfileForm(); showModal('profileModal'); });
+      els.menuLogout.addEventListener('click', logoutUser);
       els.activeProfileChip.addEventListener('click', () => { if (state.activeProfileUserId) openProfileView(state.activeProfileUserId); });
       els.mobileBackBtn.addEventListener('click', () => document.body.classList.remove('mobile-chat-open'));
       els.refreshBtn.addEventListener('click', async () => {
