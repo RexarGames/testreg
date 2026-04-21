@@ -143,20 +143,23 @@
       transition: .15s ease;
     }
     .chat-item:hover, .chat-item.active { background: #20303f; }
+
     .avatar {
       width: 52px;
       height: 52px;
       min-width: 52px;
       border-radius: 50%;
-      overflow: hidden;
-      background: #2a3b4a;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
       color: white;
+      background: #2a3b4a;
+      font-size: 24px;
+      overflow: hidden;
     }
-    .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .avatar.fallback { font-size: 18px; }
+
     .chat-name {
       font-weight: 700;
       white-space: nowrap;
@@ -272,40 +275,23 @@
       word-break: break-word;
       line-height: 1.5;
     }
-    .attach-link {
-      margin-top: 8px;
-      display: inline-flex;
-      color: #9fd0ff;
-      text-decoration: none;
-      word-break: break-all;
-    }
 
     .composer {
       padding: 12px;
       border-top: 1px solid rgba(255,255,255,.05);
       background: var(--panel);
-      display: grid;
-      gap: 10px;
     }
     .composer-row {
       display: grid;
-      grid-template-columns: 1fr auto auto auto;
+      grid-template-columns: 1fr auto;
       gap: 10px;
-      align-items: end;
+      align-items: center;
     }
     .composer textarea {
       min-height: 48px;
       max-height: 180px;
       border-radius: 18px;
       background: #17212b;
-    }
-    .file-line {
-      color: var(--muted);
-      font-size: 13px;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
     }
 
     .menu-overlay {
@@ -384,20 +370,6 @@
       gap: 12px;
       margin-bottom: 14px;
     }
-    .dropzone {
-      border: 2px dashed #37516a;
-      border-radius: 14px;
-      padding: 16px;
-      text-align: center;
-      color: var(--muted);
-      background: #101922;
-      transition: .16s ease;
-    }
-    .dropzone.dragover {
-      border-color: var(--blue);
-      background: #132433;
-      color: #b8ddff;
-    }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .user-row {
       display: grid;
@@ -421,17 +393,49 @@
       color: #111;
       background: #f1c40f;
     }
+    .fake-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-left: 6px;
+      color: #ff6a6a;
+      border: 1px solid #ff6a6a;
+      background: rgba(255,0,0,.08);
+    }
     .profile-view {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    .profile-cover {
+      height: 140px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.06);
+      background: #243443;
+      background-size: cover;
+      background-position: center;
+    }
+    .profile-main {
       display: grid;
       grid-template-columns: auto 1fr;
       gap: 16px;
       align-items: start;
     }
-    .profile-view .avatar {
+    .profile-main .avatar {
       width: 86px;
       height: 86px;
       min-width: 86px;
-      font-size: 28px;
+      font-size: 32px;
+    }
+    .color-row {
+      display: grid;
+      grid-template-columns: 1fr 120px;
+      gap: 12px;
+      align-items: center;
     }
 
     .toast {
@@ -457,13 +461,14 @@
       .sidebar, .main { height: 100svh; }
       body:not(.mobile-chat-open) .main { display: none; }
       body.mobile-chat-open .sidebar { display: none; }
-      .composer-row { grid-template-columns: 1fr auto; }
-      .composer-row .btn-hide-mobile { display: none; }
+      .composer-row { grid-template-columns: 1fr auto; align-items: center; }
+      .btn-send-mobile-fix { align-self: center; }
     }
     @media (max-width: 900px) {
       .auth-card { grid-template-columns: 1fr; }
       .auth-side { border-right: 0; border-bottom: 1px solid var(--line); }
-      .field-row, .row { grid-template-columns: 1fr; }
+      .field-row, .row, .color-row { grid-template-columns: 1fr; }
+      .profile-main { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -486,14 +491,14 @@
       <div id="menuNewGroup" class="menu-item">👥 <span>Создать группу</span></div>
       <div id="menuLogout" class="menu-item">🚪 <span>Выйти</span></div>
     </div>
-    <div class="menu-footer">Стабильная версия</div>
+    <div class="menu-footer">Полный код с префиксами</div>
   </aside>
 
   <section id="authView" class="auth-wrap">
     <div class="auth-card">
       <div class="auth-side">
         <h1>Messenger</h1>
-        <p>Стабильная версия без репортов. С префиксами и проверкой username.</p>
+        <p>Версия без файлов и без репортов. С префиксами, emoji-аватарками и кастомным фоном профиля.</p>
       </div>
       <div class="auth-main">
         <div class="tabs">
@@ -546,22 +551,13 @@
           <button id="refreshBtn" class="btn btn-secondary">Обновить</button>
         </div>
       </div>
-
       <div id="messagesWrap" class="messages">
         <div class="empty"><div>Выбери чат или создай новый.</div></div>
       </div>
-
       <div class="composer">
-        <textarea id="messageInput" placeholder="Сообщение"></textarea>
-        <div class="file-line">
-          <input id="messageFile" type="file" />
-          <span id="fileNameLine">Файл не выбран</span>
-        </div>
         <div class="composer-row">
-          <button id="clearFileBtn" class="btn btn-secondary btn-hide-mobile">Убрать файл</button>
-          <div></div>
-          <button id="clearFileBtnMobile" class="btn btn-secondary mobile-only">Убрать</button>
-          <button id="sendBtn" class="btn btn-primary">Отправить</button>
+          <textarea id="messageInput" placeholder="Сообщение"></textarea>
+          <button id="sendBtn" class="btn btn-primary btn-send-mobile-fix">Отправить</button>
         </div>
       </div>
     </main>
@@ -580,11 +576,11 @@
         </div>
         <textarea id="profileBio" placeholder="О себе"></textarea>
         <input id="profileEmail" readonly />
-        <div id="avatarDropzone" class="dropzone">
-          Перетащи сюда аватар или нажми, чтобы выбрать файл
-          <input id="avatarFile" type="file" accept="image/*" class="hidden" />
+        <div class="color-row">
+          <input id="profileAvatarEmoji" placeholder="Эмодзи для аватарки, например 😎" />
+          <input id="profileAvatarBg" type="color" value="#2a3b4a" />
         </div>
-        <div id="avatarPreview" class="tiny"></div>
+        <input id="profileCover" placeholder="Фон профиля: цвет, градиент или URL картинки" />
         <button id="saveProfileBtn" class="btn btn-primary">Сохранить профиль</button>
       </div>
     </div>
@@ -636,7 +632,9 @@
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const PREFIX_BY_USERNAME = {
-      link: { label: 'M' }
+      link: { type: 'mod', label: 'M' },
+      dexxure: { type: 'mod', label: 'M' },
+      adolfhitler: { type: 'fake', label: 'FAKE' },
     };
 
     const state = {
@@ -652,8 +650,6 @@
       polling: null,
       busySend: false,
       busyProfileSave: false,
-      selectedAvatarFile: null,
-      selectedMessageFile: null,
       unreadCounts: {},
       lastMessageSeenAt: null,
       menuOpen: false,
@@ -700,19 +696,15 @@
       refreshBtn: document.getElementById('refreshBtn'),
       messagesWrap: document.getElementById('messagesWrap'),
       messageInput: document.getElementById('messageInput'),
-      messageFile: document.getElementById('messageFile'),
-      fileNameLine: document.getElementById('fileNameLine'),
-      clearFileBtn: document.getElementById('clearFileBtn'),
-      clearFileBtnMobile: document.getElementById('clearFileBtnMobile'),
       sendBtn: document.getElementById('sendBtn'),
       profileModal: document.getElementById('profileModal'),
       profileNickname: document.getElementById('profileNickname'),
       profileUsername: document.getElementById('profileUsername'),
       profileBio: document.getElementById('profileBio'),
       profileEmail: document.getElementById('profileEmail'),
-      avatarDropzone: document.getElementById('avatarDropzone'),
-      avatarFile: document.getElementById('avatarFile'),
-      avatarPreview: document.getElementById('avatarPreview'),
+      profileAvatarEmoji: document.getElementById('profileAvatarEmoji'),
+      profileAvatarBg: document.getElementById('profileAvatarBg'),
+      profileCover: document.getElementById('profileCover'),
       saveProfileBtn: document.getElementById('saveProfileBtn'),
       viewProfileModal: document.getElementById('viewProfileModal'),
       viewProfileContent: document.getElementById('viewProfileContent'),
@@ -762,15 +754,19 @@
         .slice(0, 24);
     }
 
-    function avatarHTML(url, fallback = '?') {
-      if (url) return `<img src="${escapeHtml(url)}" alt="">`;
-      return escapeHtml(String(fallback).slice(0,1).toUpperCase());
-    }
-
     function prefixBadge(profile) {
       const key = profile?.username?.toLowerCase?.();
       const prefix = key ? PREFIX_BY_USERNAME[key] : null;
-      return prefix ? `<span class="prefix-badge">${escapeHtml(prefix.label)}</span>` : '';
+      if (!prefix) return '';
+      if (prefix.type === 'fake') return `<span class="fake-badge">${escapeHtml(prefix.label)}</span>`;
+      return `<span class="prefix-badge">${escapeHtml(prefix.label)}</span>`;
+    }
+
+    function avatarHTML(profile, size='normal') {
+      const emoji = profile?.avatar_emoji?.trim();
+      const bg = profile?.avatar_bg?.trim() || '#2a3b4a';
+      const text = emoji || (profile?.nickname?.trim()?.[0] || profile?.username?.trim()?.[0] || '?');
+      return `<div class="avatar ${emoji ? '' : 'fallback'}" style="background:${escapeHtml(bg)};${size==='big'?'width:86px;height:86px;min-width:86px;font-size:32px;':''}">${escapeHtml(text)}</div>`;
     }
 
     function displayName(profile, fallback = 'User') {
@@ -789,6 +785,15 @@
       if (!v) return '';
       const d = new Date(v);
       return d.toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function coverStyle(profile) {
+      const value = (profile?.profile_cover || '').trim();
+      if (!value) return 'background:#243443;';
+      if (/^https?:\/\//i.test(value) || /^data:image\//i.test(value)) {
+        return `background-image:url('${value.replace(/'/g, '%27')}');background-size:cover;background-position:center;`;
+      }
+      return `background:${value};`;
     }
 
     async function isUsernameTaken(username, excludeUserId = null) {
@@ -834,9 +839,7 @@
       state.polling = setInterval(async () => {
         try {
           await loadChats(false);
-          if (state.activeChatId) {
-            await loadMessages(state.activeChatId, false);
-          }
+          if (state.activeChatId) await loadMessages(state.activeChatId, false);
           await checkForNewMessages();
         } catch (e) {
           console.error(e);
@@ -868,7 +871,9 @@
             nickname,
             username,
             bio: '',
-            avatar_url: '',
+            avatar_emoji: '',
+            avatar_bg: '#2a3b4a',
+            profile_cover: '',
             updated_at: new Date().toISOString(),
           });
           await bootApp();
@@ -921,7 +926,9 @@
         nickname: username,
         username,
         bio: '',
-        avatar_url: '',
+        avatar_emoji: '',
+        avatar_bg: '#2a3b4a',
+        profile_cover: '',
         updated_at: new Date().toISOString(),
       }).select().single();
       if (createError) throw createError;
@@ -937,8 +944,10 @@
     }
 
     function renderSelf() {
-      const avatar = avatarHTML(state.myProfile?.avatar_url, displayName(state.myProfile, 'M'));
-      els.menuAvatar.innerHTML = avatar;
+      els.menuAvatar.outerHTML = avatarHTML(state.myProfile);
+      const newAvatar = els.leftMenu.querySelector('.avatar');
+      newAvatar.id = 'menuAvatar';
+      els.menuAvatar = newAvatar;
       els.menuName.innerHTML = nameWithDecor(state.myProfile, 'Me');
       els.menuUsername.textContent = displayHandle(state.myProfile);
     }
@@ -966,15 +975,9 @@
       els.profileUsername.value = state.myProfile?.username || '';
       els.profileBio.value = state.myProfile?.bio || '';
       els.profileEmail.value = state.user?.email || '';
-      els.avatarPreview.textContent = state.selectedAvatarFile ? state.selectedAvatarFile.name : (state.myProfile?.avatar_url ? 'Текущий аватар установлен' : 'Аватар не выбран');
-    }
-
-    async function uploadAvatar(file) {
-      const path = `${state.user.id}/${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
-      const { error } = await supabase.storage.from('avatars').upload(path, file, { upsert: true });
-      if (error) throw error;
-      const { data } = supabase.storage.from('avatars').getPublicUrl(path);
-      return data.publicUrl;
+      els.profileAvatarEmoji.value = state.myProfile?.avatar_emoji || '';
+      els.profileAvatarBg.value = state.myProfile?.avatar_bg || '#2a3b4a';
+      els.profileCover.value = state.myProfile?.profile_cover || '';
     }
 
     async function saveProfile() {
@@ -987,19 +990,18 @@
           toast('Этот username уже занят');
           return;
         }
-        let avatarUrl = state.myProfile?.avatar_url || '';
-        if (state.selectedAvatarFile) avatarUrl = await uploadAvatar(state.selectedAvatarFile);
         const payload = {
           user_id: state.user.id,
           nickname: els.profileNickname.value.trim() || 'User',
           username,
           bio: els.profileBio.value.trim(),
-          avatar_url: avatarUrl,
+          avatar_emoji: els.profileAvatarEmoji.value.trim(),
+          avatar_bg: els.profileAvatarBg.value || '#2a3b4a',
+          profile_cover: els.profileCover.value.trim(),
           updated_at: new Date().toISOString(),
         };
         const { data, error } = await supabase.from('profiles').upsert(payload).select().single();
         if (error) throw error;
-        state.selectedAvatarFile = null;
         state.myProfile = data;
         await loadProfiles();
         renderSelf();
@@ -1058,11 +1060,10 @@
       const other = (chat.members || []).find(m => m.user_id !== state.user.id);
       return displayHandle(state.profilesMap.get(other?.user_id));
     }
-    function getChatAvatar(chat) {
-      if (chat.type === 'group') return { url: '', text: (chat.title || 'G')[0] || 'G' };
+    function getChatProfile(chat) {
+      if (chat.type === 'group') return null;
       const other = (chat.members || []).find(m => m.user_id !== state.user.id);
-      const p = state.profilesMap.get(other?.user_id);
-      return { url: p?.avatar_url || '', text: displayName(p, 'U')[0] || 'U' };
+      return state.profilesMap.get(other?.user_id) || null;
     }
 
     function renderChatList() {
@@ -1071,14 +1072,15 @@
         return;
       }
       els.chatList.innerHTML = state.chats.map(chat => {
-        const avatar = getChatAvatar(chat);
+        const profile = getChatProfile(chat);
         const unread = state.unreadCounts[chat.id] || 0;
-        const titleHtml = chat.type === 'direct'
-          ? nameWithDecor(state.profilesMap.get((chat.members || []).find(m => m.user_id !== state.user.id)?.user_id), getChatTitle(chat))
-          : escapeHtml(getChatTitle(chat));
+        const avatar = chat.type === 'group'
+          ? `<div class="avatar fallback">${escapeHtml((chat.title || 'G').slice(0,1))}</div>`
+          : avatarHTML(profile);
+        const titleHtml = chat.type === 'direct' ? nameWithDecor(profile, getChatTitle(chat)) : escapeHtml(getChatTitle(chat));
         return `
           <div class="chat-item ${state.activeChatId === chat.id ? 'active' : ''}" data-chat-id="${chat.id}">
-            <div class="avatar">${avatarHTML(avatar.url, avatar.text)}</div>
+            ${avatar}
             <div style="min-width:0;">
               <div class="chat-name">${titleHtml}</div>
               <div class="chat-preview">${escapeHtml(getChatSubtitle(chat))}</div>
@@ -1092,7 +1094,8 @@
     }
 
     function renderEmpty() {
-      els.activeChatAvatar.innerHTML = avatarHTML('', 'C');
+      els.activeChatAvatar.innerHTML = '?';
+      els.activeChatAvatar.style.background = '#2a3b4a';
       els.activeChatTitle.textContent = 'Выбери чат';
       els.activeChatSubtitle.textContent = 'Профиль и сообщения';
       els.messagesWrap.innerHTML = `<div class="empty"><div>Выбери чат или создай новый.</div></div>`;
@@ -1105,18 +1108,20 @@
       const chat = state.chats.find(c => c.id === chatId);
       if (!chat) return;
       if (window.innerWidth <= 980) document.body.classList.add('mobile-chat-open');
-      const avatar = getChatAvatar(chat);
-      els.activeChatAvatar.innerHTML = avatarHTML(avatar.url, avatar.text);
-      els.activeChatTitle.innerHTML = chat.type === 'direct'
-        ? nameWithDecor(state.profilesMap.get((chat.members || []).find(m => m.user_id !== state.user.id)?.user_id), getChatTitle(chat))
-        : escapeHtml(getChatTitle(chat));
-      els.activeChatSubtitle.textContent = getChatSubtitle(chat);
-      if (chat.type === 'direct') {
-        const other = (chat.members || []).find(m => m.user_id !== state.user.id);
-        state.activeProfileUserId = other?.user_id || null;
+      const profile = getChatProfile(chat);
+      if (chat.type === 'direct' && profile) {
+        els.activeChatAvatar.outerHTML = avatarHTML(profile);
+        const newAvatar = els.activeProfileChip.querySelector('.avatar');
+        newAvatar.id = 'activeChatAvatar';
+        els.activeChatAvatar = newAvatar;
+        els.activeChatTitle.innerHTML = nameWithDecor(profile, getChatTitle(chat));
       } else {
-        state.activeProfileUserId = null;
+        els.activeChatAvatar.innerHTML = escapeHtml((chat.title || 'G').slice(0,1));
+        els.activeChatAvatar.style.background = '#2a3b4a';
+        els.activeChatTitle.textContent = getChatTitle(chat);
       }
+      els.activeChatSubtitle.textContent = getChatSubtitle(chat);
+      state.activeProfileUserId = profile?.user_id || null;
       renderChatList();
       await loadMessages(chatId, true);
       closeMenu();
@@ -1147,44 +1152,28 @@
               <span>${escapeHtml(formatTime(msg.created_at))}</span>
             </div>
             <div class="msg-body">${escapeHtml(msg.body || '')}</div>
-            ${msg.attachment_url ? `<a class="attach-link" href="${escapeHtml(msg.attachment_url)}" target="_blank" rel="noopener noreferrer">📎 ${escapeHtml(msg.attachment_name || 'Файл')}</a>` : ''}
           </div>`;
       }).join('');
       if (scrollToBottom) els.messagesWrap.scrollTop = els.messagesWrap.scrollHeight;
-    }
-
-    async function uploadMessageFile(file) {
-      const path = `${state.user.id}/${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
-      const { error } = await supabase.storage.from('messenger-files').upload(path, file, { upsert: true });
-      if (error) throw error;
-      const { data } = supabase.storage.from('messenger-files').getPublicUrl(path);
-      return { url: data.publicUrl, name: file.name, type: file.type || 'application/octet-stream' };
     }
 
     async function sendMessage() {
       if (state.busySend) return;
       if (!state.activeChatId) { toast('Сначала открой чат'); return; }
       const body = els.messageInput.value.trim();
-      const file = state.selectedMessageFile;
-      if (!body && !file) { toast('Сообщение пустое'); return; }
+      if (!body) { toast('Сообщение пустое'); return; }
       state.busySend = true;
       els.sendBtn.disabled = true;
       try {
-        let attachment = null;
-        if (file) attachment = await uploadMessageFile(file);
         const payload = {
           conversation_id: state.activeChatId,
           sender_id: state.user.id,
           body,
-          attachment_url: attachment?.url || null,
-          attachment_name: attachment?.name || null,
-          attachment_type: attachment?.type || null,
         };
         const { error } = await supabase.from('messages').insert(payload);
         if (error) throw error;
         await supabase.from('conversations').update({ updated_at: new Date().toISOString() }).eq('id', state.activeChatId);
         els.messageInput.value = '';
-        clearMessageFile();
         await loadChats(false);
         await loadMessages(state.activeChatId, true);
       } catch (e) {
@@ -1194,12 +1183,6 @@
         state.busySend = false;
         els.sendBtn.disabled = false;
       }
-    }
-
-    function clearMessageFile() {
-      state.selectedMessageFile = null;
-      els.messageFile.value = '';
-      els.fileNameLine.textContent = 'Файл не выбран';
     }
 
     async function openNewChatModal() {
@@ -1219,7 +1202,7 @@
       }
       els.userList.innerHTML = users.map(p => `
         <div class="user-row">
-          <div class="avatar">${avatarHTML(p.avatar_url, displayName(p,'U')[0] || 'U')}</div>
+          ${avatarHTML(p)}
           <div>
             <div class="chat-name">${nameWithDecor(p, 'User')}</div>
             <div class="tiny">${escapeHtml(displayHandle(p))}</div>
@@ -1261,7 +1244,7 @@
         .filter(p => !term || displayName(p).toLowerCase().includes(term) || displayHandle(p).toLowerCase().includes(term));
       els.groupUsersList.innerHTML = users.map(p => `
         <label class="user-row">
-          <div class="avatar">${avatarHTML(p.avatar_url, displayName(p,'U')[0] || 'U')}</div>
+          ${avatarHTML(p)}
           <div>
             <div class="chat-name">${nameWithDecor(p, 'User')}</div>
             <div class="tiny">${escapeHtml(displayHandle(p))}</div>
@@ -1317,11 +1300,14 @@
       if (!p) return;
       els.viewProfileContent.innerHTML = `
         <div class="profile-view">
-          <div class="avatar">${avatarHTML(p.avatar_url, displayName(p,'U')[0] || 'U')}</div>
-          <div>
-            <div style="font-size:24px;font-weight:700;">${nameWithDecor(p, 'User')}</div>
-            <div class="tiny" style="margin-top:6px;">${escapeHtml(displayHandle(p))}</div>
-            <div style="margin-top:14px; white-space:pre-wrap; line-height:1.6;">${escapeHtml(p.bio || 'Нет описания')}</div>
+          <div class="profile-cover" style="${coverStyle(p)}"></div>
+          <div class="profile-main">
+            ${avatarHTML(p, 'big')}
+            <div>
+              <div style="font-size:24px;font-weight:700;">${nameWithDecor(p, 'User')}</div>
+              <div class="tiny" style="margin-top:6px;">${escapeHtml(displayHandle(p))}</div>
+              <div style="margin-top:14px; white-space:pre-wrap; line-height:1.6;">${escapeHtml(p.bio || 'Нет описания')}</div>
+            </div>
           </div>
         </div>`;
       showModal('viewProfileModal');
@@ -1360,37 +1346,11 @@
           sendMessage();
         }
       });
-      els.messageFile.addEventListener('change', () => {
-        state.selectedMessageFile = els.messageFile.files?.[0] || null;
-        els.fileNameLine.textContent = state.selectedMessageFile ? state.selectedMessageFile.name : 'Файл не выбран';
-      });
-      els.clearFileBtn.addEventListener('click', clearMessageFile);
-      els.clearFileBtnMobile.addEventListener('click', clearMessageFile);
       els.sendBtn.addEventListener('click', sendMessage);
       els.userSearch.addEventListener('input', renderUserList);
       els.groupUserSearch.addEventListener('input', renderGroupUsers);
       els.createGroupBtn.addEventListener('click', createGroup);
       els.saveProfileBtn.addEventListener('click', saveProfile);
-      els.avatarDropzone.addEventListener('click', () => els.avatarFile.click());
-      els.avatarFile.addEventListener('change', () => {
-        state.selectedAvatarFile = els.avatarFile.files?.[0] || null;
-        fillProfileForm();
-      });
-      ['dragenter','dragover'].forEach(evt => els.avatarDropzone.addEventListener(evt, (e) => {
-        e.preventDefault();
-        els.avatarDropzone.classList.add('dragover');
-      }));
-      ['dragleave','drop'].forEach(evt => els.avatarDropzone.addEventListener(evt, (e) => {
-        e.preventDefault();
-        els.avatarDropzone.classList.remove('dragover');
-      }));
-      els.avatarDropzone.addEventListener('drop', (e) => {
-        const file = e.dataTransfer?.files?.[0];
-        if (file) {
-          state.selectedAvatarFile = file;
-          fillProfileForm();
-        }
-      });
       document.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', closeModals));
       document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', (e) => { if (e.target === m) closeModals(); }));
       els.chatList.addEventListener('click', async (e) => {
