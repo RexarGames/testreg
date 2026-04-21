@@ -8,7 +8,6 @@
     :root {
       --bg: #0e1621;
       --panel: #17212b;
-      --panel-2: #1f2c39;
       --line: #22303d;
       --text: #e6eef6;
       --muted: #8ea1b3;
@@ -51,7 +50,7 @@
     }
     .btn:hover { opacity: .92; }
     .btn:disabled { opacity: .55; cursor: default; }
-    .btn-primary { background: var(--blue); color: #fff; }
+    .btn-primary { background: var(--blue); color: white; }
     .btn-secondary { background: #223140; color: var(--text); }
     .btn-danger { background: #402126; color: #ffc7c7; }
     .icon-btn {
@@ -409,18 +408,19 @@
       border-bottom: 1px solid rgba(255,255,255,.05);
     }
     .tiny { color: var(--muted); font-size: 13px; }
-    .rep-tag {
+    .prefix-badge {
       display: inline-flex;
       align-items: center;
-      padding: 3px 8px;
-      border-radius: 999px;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
       font-size: 11px;
       font-weight: 700;
-      margin-left: 8px;
-      vertical-align: middle;
+      margin-left: 6px;
+      color: #111;
+      background: #f1c40f;
     }
-    .rep-tag.fake { background: rgba(245,158,11,.15); color: #ffcf70; }
-    .rep-tag.scam { background: rgba(239,83,80,.16); color: #ff9b99; }
     .profile-view {
       display: grid;
       grid-template-columns: auto 1fr;
@@ -469,15 +469,14 @@
 </head>
 <body>
   <div id="toast" class="toast"></div>
-
   <div id="menuOverlay" class="menu-overlay"></div>
   <aside id="leftMenu" class="left-menu">
     <div class="menu-header">
       <div class="menu-user">
         <div id="menuAvatar" class="avatar">M</div>
         <div>
-          <div id="menuName" class="user-title">—</div>
-          <div id="menuUsername" class="user-sub">—</div>
+          <div id="menuName" class="chat-name">—</div>
+          <div id="menuUsername" class="tiny">—</div>
         </div>
       </div>
     </div>
@@ -487,14 +486,14 @@
       <div id="menuNewGroup" class="menu-item">👥 <span>Создать группу</span></div>
       <div id="menuLogout" class="menu-item">🚪 <span>Выйти</span></div>
     </div>
-    <div class="menu-footer">Messenger Desktop<br>Пробная версия</div>
+    <div class="menu-footer">Стабильная версия</div>
   </aside>
 
   <section id="authView" class="auth-wrap">
     <div class="auth-card">
       <div class="auth-side">
         <h1>Messenger</h1>
-        <p>Чаты, группы, профили, аватары, файлы и репутация.</p>
+        <p>Стабильная версия без репортов. С префиксами и проверкой username.</p>
       </div>
       <div class="auth-main">
         <div class="tabs">
@@ -636,6 +635,10 @@
     const SUPABASE_KEY = "sb_publishable_yXZd7wd5aVNpuxjt7-ax8g_aejudNte";
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    const PREFIX_BY_USERNAME = {
+      link: { label: 'M' }
+    };
+
     const state = {
       user: null,
       myProfile: null,
@@ -655,6 +658,7 @@
       lastMessageSeenAt: null,
       menuOpen: false,
       messagesLoadToken: 0,
+      booting: false,
     };
 
     const els = {
@@ -736,16 +740,8 @@
 
     function showModal(id) { document.getElementById(id).classList.add('open'); }
     function closeModals() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('open')); }
-    function openMenu() {
-      state.menuOpen = true;
-      els.leftMenu.classList.add('open');
-      els.menuOverlay.classList.add('open');
-    }
-    function closeMenu() {
-      state.menuOpen = false;
-      els.leftMenu.classList.remove('open');
-      els.menuOverlay.classList.remove('open');
-    }
+    function openMenu() { state.menuOpen = true; els.leftMenu.classList.add('open'); els.menuOverlay.classList.add('open'); }
+    function closeMenu() { state.menuOpen = false; els.leftMenu.classList.remove('open'); els.menuOverlay.classList.remove('open'); }
 
     function escapeHtml(s) {
       return String(s ?? '')
@@ -771,11 +767,10 @@
       return escapeHtml(String(fallback).slice(0,1).toUpperCase());
     }
 
-    function repInfo(profile) {
-      const count = Number(profile?.reports_count || 0);
-      if (count >= 8) return { label: 'SCAM', cls: 'scam' };
-      if (count >= 4) return { label: 'FAKE', cls: 'fake' };
-      return null;
+    function prefixBadge(profile) {
+      const key = profile?.username?.toLowerCase?.();
+      const prefix = key ? PREFIX_BY_USERNAME[key] : null;
+      return prefix ? `<span class="prefix-badge">${escapeHtml(prefix.label)}</span>` : '';
     }
 
     function displayName(profile, fallback = 'User') {
@@ -786,15 +781,24 @@
       return profile?.username ? '@' + profile.username : 'без username';
     }
 
-    function nameWithRep(profile, fallback = 'User') {
-      const rep = repInfo(profile);
-      return `${escapeHtml(displayName(profile, fallback))}${rep ? ` <span class="rep-tag ${rep.cls}">${rep.label}</span>` : ''}`;
+    function nameWithDecor(profile, fallback = 'User') {
+      return `${escapeHtml(displayName(profile, fallback))}${prefixBadge(profile)}`;
     }
 
     function formatTime(v) {
       if (!v) return '';
       const d = new Date(v);
       return d.toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    }
+
+    async function isUsernameTaken(username, excludeUserId = null) {
+      const uname = normalizeUsername(username);
+      if (!uname) return false;
+      const { data, error } = await supabase.from('profiles').select('user_id').eq('username', uname);
+      if (error) throw error;
+      const rows = data || [];
+      if (!rows.length) return false;
+      return rows.some(r => r.user_id !== excludeUserId);
     }
 
     function showAuth() {
@@ -830,7 +834,9 @@
       state.polling = setInterval(async () => {
         try {
           await loadChats(false);
-          if (state.activeChatId) await loadMessages(state.activeChatId, false);
+          if (state.activeChatId) {
+            await loadMessages(state.activeChatId, false);
+          }
           await checkForNewMessages();
         } catch (e) {
           console.error(e);
@@ -849,6 +855,10 @@
           setStatus(els.registerStatus, 'Проверь данные.', true);
           return;
         }
+        if (await isUsernameTaken(username)) {
+          setStatus(els.registerStatus, 'Этот username уже занят.', true);
+          return;
+        }
         const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
         if (data.session?.user) {
@@ -859,7 +869,6 @@
             username,
             bio: '',
             avatar_url: '',
-            reports_count: 0,
             updated_at: new Date().toISOString(),
           });
           await bootApp();
@@ -905,10 +914,7 @@
     async function ensureMyProfile() {
       const { data, error } = await supabase.from('profiles').select('*').eq('user_id', state.user.id).maybeSingle();
       if (error) throw error;
-      if (data) {
-        state.myProfile = data;
-        return;
-      }
+      if (data) { state.myProfile = data; return; }
       const username = normalizeUsername((state.user.email || 'user').split('@')[0]);
       const { data: created, error: createError } = await supabase.from('profiles').upsert({
         user_id: state.user.id,
@@ -916,7 +922,6 @@
         username,
         bio: '',
         avatar_url: '',
-        reports_count: 0,
         updated_at: new Date().toISOString(),
       }).select().single();
       if (createError) throw createError;
@@ -934,20 +939,26 @@
     function renderSelf() {
       const avatar = avatarHTML(state.myProfile?.avatar_url, displayName(state.myProfile, 'M'));
       els.menuAvatar.innerHTML = avatar;
-      els.menuName.innerHTML = nameWithRep(state.myProfile, 'Me');
+      els.menuName.innerHTML = nameWithDecor(state.myProfile, 'Me');
       els.menuUsername.textContent = displayHandle(state.myProfile);
     }
 
     async function bootApp() {
-      showApp();
-      await ensureMyProfile();
-      await loadProfiles();
-      renderSelf();
-      fillProfileForm();
-      await loadChats(true);
-      if (!state.lastMessageSeenAt) state.lastMessageSeenAt = new Date().toISOString();
-      askNotificationPermission();
-      startPolling();
+      try {
+        if (state.booting) return;
+        state.booting = true;
+        stopPolling();
+        showApp();
+        await ensureMyProfile();
+        await loadProfiles();
+        renderSelf();
+        fillProfileForm();
+        await loadChats(true);
+        if (!state.lastMessageSeenAt) state.lastMessageSeenAt = new Date().toISOString();
+        startPolling();
+      } finally {
+        state.booting = false;
+      }
     }
 
     function fillProfileForm() {
@@ -971,15 +982,19 @@
       state.busyProfileSave = true;
       els.saveProfileBtn.disabled = true;
       try {
+        const username = normalizeUsername(els.profileUsername.value || els.profileNickname.value);
+        if (await isUsernameTaken(username, state.user.id)) {
+          toast('Этот username уже занят');
+          return;
+        }
         let avatarUrl = state.myProfile?.avatar_url || '';
         if (state.selectedAvatarFile) avatarUrl = await uploadAvatar(state.selectedAvatarFile);
         const payload = {
           user_id: state.user.id,
           nickname: els.profileNickname.value.trim() || 'User',
-          username: normalizeUsername(els.profileUsername.value || els.profileNickname.value),
+          username,
           bio: els.profileBio.value.trim(),
           avatar_url: avatarUrl,
-          reports_count: Number(state.myProfile?.reports_count || 0),
           updated_at: new Date().toISOString(),
         };
         const { data, error } = await supabase.from('profiles').upsert(payload).select().single();
@@ -1059,7 +1074,7 @@
         const avatar = getChatAvatar(chat);
         const unread = state.unreadCounts[chat.id] || 0;
         const titleHtml = chat.type === 'direct'
-          ? nameWithRep(state.profilesMap.get((chat.members || []).find(m => m.user_id !== state.user.id)?.user_id), getChatTitle(chat))
+          ? nameWithDecor(state.profilesMap.get((chat.members || []).find(m => m.user_id !== state.user.id)?.user_id), getChatTitle(chat))
           : escapeHtml(getChatTitle(chat));
         return `
           <div class="chat-item ${state.activeChatId === chat.id ? 'active' : ''}" data-chat-id="${chat.id}">
@@ -1093,7 +1108,7 @@
       const avatar = getChatAvatar(chat);
       els.activeChatAvatar.innerHTML = avatarHTML(avatar.url, avatar.text);
       els.activeChatTitle.innerHTML = chat.type === 'direct'
-        ? nameWithRep(state.profilesMap.get((chat.members || []).find(m => m.user_id !== state.user.id)?.user_id), getChatTitle(chat))
+        ? nameWithDecor(state.profilesMap.get((chat.members || []).find(m => m.user_id !== state.user.id)?.user_id), getChatTitle(chat))
         : escapeHtml(getChatTitle(chat));
       els.activeChatSubtitle.textContent = getChatSubtitle(chat);
       if (chat.type === 'direct') {
@@ -1128,7 +1143,7 @@
         return `
           <div class="msg ${mine ? 'mine' : ''}">
             <div class="msg-head">
-              <span>${nameWithRep(p, 'User')}</span>
+              <span>${nameWithDecor(p, 'User')}</span>
               <span>${escapeHtml(formatTime(msg.created_at))}</span>
             </div>
             <div class="msg-body">${escapeHtml(msg.body || '')}</div>
@@ -1206,7 +1221,7 @@
         <div class="user-row">
           <div class="avatar">${avatarHTML(p.avatar_url, displayName(p,'U')[0] || 'U')}</div>
           <div>
-            <div class="user-title">${nameWithRep(p, 'User')}</div>
+            <div class="chat-name">${nameWithDecor(p, 'User')}</div>
             <div class="tiny">${escapeHtml(displayHandle(p))}</div>
           </div>
           <button class="btn btn-primary" data-start-chat="${p.user_id}">Чат</button>
@@ -1248,7 +1263,7 @@
         <label class="user-row">
           <div class="avatar">${avatarHTML(p.avatar_url, displayName(p,'U')[0] || 'U')}</div>
           <div>
-            <div class="user-title">${nameWithRep(p, 'User')}</div>
+            <div class="chat-name">${nameWithDecor(p, 'User')}</div>
             <div class="tiny">${escapeHtml(displayHandle(p))}</div>
           </div>
           <input type="checkbox" value="${p.user_id}">
@@ -1271,14 +1286,6 @@
       toast('Группа создана');
     }
 
-    function askNotificationPermission() {
-      try {
-        if ('Notification' in window && Notification.permission === 'default') {
-          Notification.requestPermission().catch(() => {});
-        }
-      } catch (e) { console.error(e); }
-    }
-
     async function checkForNewMessages() {
       try {
         if (!state.user || !state.chats.length) return;
@@ -1295,15 +1302,14 @@
               const chat = state.chats.find(c => c.id === msg.conversation_id);
               const title = chat ? getChatTitle(chat) : 'Messenger';
               toast(`Новое сообщение: ${title}`);
-              if ('Notification' in window && Notification.permission === 'granted' && document.hidden) {
-                new Notification(title, { body: msg.body || msg.attachment_name || 'Новое сообщение' });
-              }
             }
           }
           state.lastMessageSeenAt = data[data.length - 1].created_at;
           renderChatList();
         }
-      } catch (e) { console.error(e); }
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     function openProfileView(userId) {
@@ -1313,53 +1319,13 @@
         <div class="profile-view">
           <div class="avatar">${avatarHTML(p.avatar_url, displayName(p,'U')[0] || 'U')}</div>
           <div>
-            <div style="font-size:24px;font-weight:700;">${nameWithRep(p, 'User')}</div>
+            <div style="font-size:24px;font-weight:700;">${nameWithDecor(p, 'User')}</div>
             <div class="tiny" style="margin-top:6px;">${escapeHtml(displayHandle(p))}</div>
-            <div class="tiny" style="margin-top:6px;">Репортов: ${escapeHtml(String(p.reports_count || 0))}</div>
             <div style="margin-top:14px; white-space:pre-wrap; line-height:1.6;">${escapeHtml(p.bio || 'Нет описания')}</div>
-            <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
-              ${userId !== state.user.id ? `<button id="reportFakeBtn" class="btn btn-secondary">Report Fake</button><button id="reportScamBtn" class="btn btn-danger">Report Scam</button>` : ''}
-            </div>
           </div>
         </div>`;
       showModal('viewProfileModal');
-      const fakeBtn = document.getElementById('reportFakeBtn');
-      const scamBtn = document.getElementById('reportScamBtn');
-      if (fakeBtn) fakeBtn.addEventListener('click', () => sendReport(userId, 'fake'));
-      if (scamBtn) scamBtn.addEventListener('click', () => sendReport(userId, 'scam'));
       closeMenu();
-    }
-
-    async function sendReport(targetUserId, type) {
-      try {
-        if (targetUserId === state.user.id) return;
-        const { error } = await supabase.from('profile_reports').upsert({
-          reporter_id: state.user.id,
-          target_user_id: targetUserId,
-          report_type: type,
-          created_at: new Date().toISOString(),
-        });
-        if (error) throw error;
-        const { count, error: countError } = await supabase
-          .from('profile_reports')
-          .select('*', { count: 'exact', head: true })
-          .eq('target_user_id', targetUserId);
-        if (countError) throw countError;
-        const { error: updateError } = await supabase
-          .from('profiles')
-          .update({ reports_count: Number(count || 0), updated_at: new Date().toISOString() })
-          .eq('user_id', targetUserId);
-        if (updateError) throw updateError;
-        await loadProfiles();
-        renderSelf();
-        await loadChats(false);
-        if (state.activeChatId) await loadMessages(state.activeChatId, false);
-        openProfileView(targetUserId);
-        toast('Репорт отправлен');
-      } catch (e) {
-        console.error(e);
-        toast('Не удалось отправить репорт');
-      }
     }
 
     function bindStaticEvents() {
