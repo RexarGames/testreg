@@ -7,15 +7,21 @@
   <style>
     :root {
       --bg: #0e1621;
+      --bg-chat: #0b141a;
       --panel: #17212b;
+      --panel-2: #1f2c39;
       --line: #22303d;
       --text: #e6eef6;
       --muted: #8ea1b3;
       --blue: #2aabee;
       --danger: #ef5350;
+      --danger-bg: #3b2227;
       --bubble-me: #2b5278;
       --bubble-other: #182533;
+      --menu-width: 280px;
+      --sidebar-width: 320px;
     }
+
     * { box-sizing: border-box; }
     html, body { height: 100%; }
     body {
@@ -27,7 +33,8 @@
     }
     .hidden { display: none !important; }
     .mobile-only { display: none; }
-    button, input, select, textarea { font: inherit; }
+    button, input, textarea, select { font: inherit; }
+
     input, textarea, select {
       width: 100%;
       border: 1px solid var(--line);
@@ -37,13 +44,14 @@
       padding: 12px 14px;
       outline: none;
     }
-    textarea { resize: vertical; min-height: 54px; }
     input::placeholder, textarea::placeholder { color: #6f8396; }
     input:focus, textarea:focus, select:focus { border-color: var(--blue); }
+    textarea { resize: vertical; min-height: 52px; }
+
     .btn {
       border: 0;
       border-radius: 10px;
-      padding: 11px 16px;
+      padding: 10px 14px;
       cursor: pointer;
       transition: .18s ease;
     }
@@ -51,7 +59,22 @@
     .btn:disabled { opacity: .55; cursor: default; }
     .btn-primary { background: var(--blue); color: white; }
     .btn-secondary { background: #223140; color: var(--text); }
-    .btn-danger { background: #402126; color: #ffc8c7; }
+    .btn-danger { background: var(--danger-bg); color: #ffc7c7; }
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      color: var(--text);
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .icon-btn:hover { background: rgba(255,255,255,.06); }
+
     .auth-wrap {
       min-height: 100vh;
       display: grid;
@@ -72,16 +95,8 @@
       border-right: 1px solid var(--line);
       background: linear-gradient(180deg, #17212b, #121c26);
     }
-    .auth-side h1 {
-      margin: 0 0 12px;
-      font-size: 40px;
-      line-height: 1;
-    }
-    .auth-side p {
-      color: var(--muted);
-      line-height: 1.6;
-      margin: 0;
-    }
+    .auth-side h1 { margin: 0 0 12px; font-size: 40px; line-height: 1; }
+    .auth-side p { color: var(--muted); margin: 0; line-height: 1.6; }
     .auth-main { padding: 24px; }
     .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
     .tab-btn {
@@ -97,100 +112,120 @@
     .field-grid { display: grid; gap: 12px; }
     .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .status { min-height: 20px; color: var(--muted); font-size: 14px; }
+
     .app-shell {
       height: 100vh;
       display: grid;
-      grid-template-columns: 320px 1fr;
+      grid-template-columns: 72px var(--sidebar-width) 1fr;
       background: var(--bg);
     }
-    .sidebar {
-      background: var(--panel);
-      border-right: 1px solid var(--line);
-      display: grid;
-      grid-template-rows: auto auto 1fr auto;
-      min-height: 0;
+
+    .nav-rail {
+      background: #121b24;
+      border-right: 1px solid rgba(255,255,255,.04);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 8px;
     }
-    .side-top {
-      padding: 14px;
-      border-bottom: 1px solid var(--line);
-      display: grid;
+    .rail-top, .rail-bottom {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       gap: 12px;
+      width: 100%;
     }
-    .profile-chip {
+    .rail-spacer { flex: 1; }
+    .rail-item {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 11px;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .rail-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      cursor: pointer;
+      justify-content: center;
+      background: rgba(255,255,255,.05);
+      font-size: 17px;
     }
-    .avatar {
-      width: 48px;
-      height: 48px;
-      min-width: 48px;
-      border-radius: 50%;
-      background: #233647;
+    .rail-item.active .rail-icon,
+    .rail-item:hover .rail-icon { background: rgba(42,171,238,.18); color: white; }
+
+    .sidebar {
+      background: var(--panel);
+      border-right: 1px solid rgba(255,255,255,.05);
       display: grid;
-      place-items: center;
-      overflow: hidden;
-      font-weight: 700;
-      color: white;
+      grid-template-rows: auto 1fr;
+      min-height: 0;
+      position: relative;
     }
-    .avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    .user-title {
-      font-weight: 700;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .user-sub {
-      color: var(--muted);
-      font-size: 13px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .rep-tag {
-      display: inline-flex;
-      align-items: center;
-      padding: 3px 8px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 700;
-      margin-left: 8px;
-      vertical-align: middle;
-    }
-    .rep-tag.fake { background: rgba(245, 158, 11, .15); color: #ffcf70; }
-    .rep-tag.scam { background: rgba(239, 83, 80, .16); color: #ff9b99; }
-    .side-actions {
+    .sidebar-top {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.04);
       display: grid;
-      grid-template-columns: 1fr 1fr;
       gap: 10px;
     }
+    .sidebar-top-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .search-input {
+      border-radius: 18px;
+      background: #3b4652;
+      border: 0;
+      padding: 10px 14px;
+      color: white;
+    }
+
     .chat-list { overflow: auto; min-height: 0; }
     .chat-item {
       display: grid;
       grid-template-columns: auto 1fr auto;
       gap: 12px;
       align-items: center;
-      padding: 12px 14px;
-      border-bottom: 1px solid rgba(255,255,255,.03);
+      padding: 10px 12px;
       cursor: pointer;
       transition: .15s ease;
     }
     .chat-item:hover, .chat-item.active { background: #20303f; }
+    .avatar {
+      width: 52px;
+      height: 52px;
+      min-width: 52px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: #2a3b4a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: white;
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .chat-name {
       font-weight: 700;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
     .chat-preview {
       color: var(--muted);
-      font-size: 13px;
+      font-size: 14px;
       margin-top: 4px;
       white-space: nowrap;
       overflow: hidden;
@@ -217,28 +252,21 @@
       font-size: 12px;
       font-weight: 700;
     }
-    .side-bottom {
-      padding: 12px;
-      border-top: 1px solid var(--line);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
+
     .main {
       display: grid;
-      grid-template-rows: auto 1fr auto;
+      grid-template-rows: 64px 1fr auto;
       min-height: 0;
-      background: #0b141a;
+      background: var(--bg-chat);
     }
     .topbar {
-      height: 64px;
-      border-bottom: 1px solid var(--line);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 16px;
-      background: var(--panel);
       gap: 12px;
+      padding: 0 14px;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      background: var(--panel);
     }
     .topbar-left {
       display: flex;
@@ -247,6 +275,21 @@
       min-width: 0;
       cursor: pointer;
     }
+    .title-wrap { min-width: 0; }
+    .title-main {
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .title-sub {
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .messages {
       overflow: auto;
       min-height: 0;
@@ -294,9 +337,10 @@
       text-decoration: none;
       word-break: break-all;
     }
+
     .composer {
       padding: 12px;
-      border-top: 1px solid var(--line);
+      border-top: 1px solid rgba(255,255,255,.04);
       background: var(--panel);
       display: grid;
       gap: 10px;
@@ -321,6 +365,59 @@
       align-items: center;
       flex-wrap: wrap;
     }
+
+    .menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.4);
+      display: none;
+      z-index: 40;
+    }
+    .menu-overlay.open { display: block; }
+    .left-menu {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: var(--menu-width);
+      background: var(--panel);
+      border-right: 1px solid rgba(255,255,255,.04);
+      transform: translateX(-100%);
+      transition: transform .2s ease;
+      z-index: 50;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+    .left-menu.open { transform: translateX(0); }
+    .menu-header {
+      padding: 18px;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+    }
+    .menu-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .menu-list {
+      padding: 8px 0;
+      overflow: auto;
+    }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      cursor: pointer;
+      color: var(--text);
+    }
+    .menu-item:hover { background: rgba(255,255,255,.05); }
+    .menu-footer {
+      padding: 16px 18px;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid rgba(255,255,255,.04);
+    }
+
     .modal {
       position: fixed;
       inset: 0;
@@ -329,7 +426,7 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
-      z-index: 50;
+      z-index: 60;
     }
     .modal.open { display: flex; }
     .modal-card {
@@ -362,6 +459,28 @@
       background: #132433;
       color: #b8ddff;
     }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .user-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+    .tiny { color: var(--muted); font-size: 13px; }
+    .rep-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .rep-tag.fake { background: rgba(245,158,11,.15); color: #ffcf70; }
+    .rep-tag.scam { background: rgba(239,83,80,.16); color: #ff9b99; }
     .profile-view {
       display: grid;
       grid-template-columns: auto 1fr;
@@ -374,16 +493,7 @@
       min-width: 86px;
       font-size: 28px;
     }
-    .tiny { color: var(--muted); font-size: 13px; }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .user-row {
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      gap: 12px;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(255,255,255,.05);
-    }
+
     .toast {
       position: fixed;
       left: 50%;
@@ -400,24 +510,48 @@
       transition: .18s ease;
     }
     .toast.show { opacity: 1; }
-    @media (max-width: 900px) {
-      .auth-card { grid-template-columns: 1fr; }
-      .auth-side { border-right: 0; border-bottom: 1px solid var(--line); }
-      .field-row, .row { grid-template-columns: 1fr; }
-    }
+
     @media (max-width: 980px) {
       .mobile-only { display: inline-flex; }
       .app-shell { grid-template-columns: 1fr; }
+      .nav-rail { display: none; }
       .sidebar, .main { height: 100svh; }
       body:not(.mobile-chat-open) .main { display: none; }
       body.mobile-chat-open .sidebar { display: none; }
       .composer-row { grid-template-columns: 1fr auto; }
       .composer-row .btn-hide-mobile { display: none; }
     }
+
+    @media (max-width: 900px) {
+      .auth-card { grid-template-columns: 1fr; }
+      .auth-side { border-right: 0; border-bottom: 1px solid var(--line); }
+      .field-row, .row { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
   <div id="toast" class="toast"></div>
+
+  <div id="menuOverlay" class="menu-overlay"></div>
+  <aside id="leftMenu" class="left-menu">
+    <div class="menu-header">
+      <div id="menuUser" class="menu-user">
+        <div id="menuAvatar" class="avatar">M</div>
+        <div>
+          <div id="menuName" class="user-title">—</div>
+          <div id="menuUsername" class="user-sub">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="menu-list">
+      <div id="menuProfile" class="menu-item">👤 <span>Мой профиль</span></div>
+      <div id="menuNewGroup" class="menu-item">👥 <span>Создать группу</span></div>
+      <div id="menuContacts" class="menu-item">📇 <span>Контакты</span></div>
+      <div id="menuSettings" class="menu-item">⚙️ <span>Настройки</span></div>
+      <div id="menuNight" class="menu-item">🌙 <span>Ночной режим</span></div>
+    </div>
+    <div class="menu-footer">Messenger Desktop<br>Пробная версия</div>
+  </aside>
 
   <section id="authView" class="auth-wrap">
     <div class="auth-card">
@@ -430,7 +564,6 @@
           <button id="registerTab" class="tab-btn active">Регистрация</button>
           <button id="loginTab" class="tab-btn">Вход</button>
         </div>
-
         <div id="registerForm" class="field-grid">
           <div class="field-row">
             <input id="regNickname" placeholder="Никнейм" />
@@ -441,7 +574,6 @@
           <button id="registerBtn" class="btn btn-primary">Создать аккаунт</button>
           <div id="registerStatus" class="status"></div>
         </div>
-
         <div id="loginForm" class="field-grid hidden">
           <input id="loginEmail" type="email" placeholder="Email" />
           <input id="loginPassword" type="password" placeholder="Пароль" />
@@ -453,40 +585,37 @@
   </section>
 
   <section id="appView" class="app-shell hidden">
+    <div class="nav-rail">
+      <div class="rail-top">
+        <button id="menuBtn" class="icon-btn" title="Меню">☰</button>
+        <div class="rail-item active"><div class="rail-icon">💬</div><div>Чаты</div></div>
+        <div class="rail-item"><div class="rail-icon">👥</div><div>Люди</div></div>
+        <div class="rail-item"><div class="rail-icon">📁</div><div>Файлы</div></div>
+      </div>
+      <div class="rail-spacer"></div>
+      <div class="rail-bottom">
+        <div id="railProfile" class="rail-item"><div class="rail-icon">👤</div><div>Профиль</div></div>
+      </div>
+    </div>
+
     <aside class="sidebar">
-      <div class="side-top">
-        <div id="selfProfileChip" class="profile-chip">
-          <div id="myAvatar" class="avatar">M</div>
-          <div style="min-width:0;">
-            <div id="myName" class="user-title">—</div>
-            <div id="myUsername" class="user-sub">—</div>
-          </div>
+      <div class="sidebar-top">
+        <div class="sidebar-top-row">
+          <button id="mobileMenuBtn" class="icon-btn mobile-only" title="Меню">☰</button>
+          <input id="chatSearch" class="search-input" placeholder="Поиск" />
         </div>
-
-        <div class="side-actions">
-          <button id="newChatBtn" class="btn btn-primary">Новый чат</button>
-          <button id="newGroupBtn" class="btn btn-secondary">Группа</button>
-        </div>
-
-        <input id="chatSearch" placeholder="Поиск" />
       </div>
-
       <div id="chatList" class="chat-list"></div>
-
-      <div class="side-bottom">
-        <button id="profileBtn" class="btn btn-secondary">Профиль</button>
-        <button id="logoutBtn" class="btn btn-danger">Выйти</button>
-      </div>
     </aside>
 
     <main class="main">
       <div class="topbar">
         <div id="activeProfileChip" class="topbar-left">
-          <button id="mobileBackBtn" class="btn btn-secondary mobile-only">Назад</button>
+          <button id="mobileBackBtn" class="icon-btn mobile-only" title="Назад">←</button>
           <div id="activeChatAvatar" class="avatar">C</div>
-          <div style="min-width:0;">
-            <div id="activeChatTitle" class="user-title">Выбери чат</div>
-            <div id="activeChatSubtitle" class="user-sub">Профиль и сообщения</div>
+          <div class="title-wrap">
+            <div id="activeChatTitle" class="title-main">Выбери чат</div>
+            <div id="activeChatSubtitle" class="title-sub">Профиль и сообщения</div>
           </div>
         </div>
         <div>
@@ -599,10 +728,21 @@
       selectedMessageFile: null,
       unreadCounts: {},
       lastMessageSeenAt: null,
+      menuOpen: false,
     };
 
     const els = {
       toast: document.getElementById('toast'),
+      menuBtn: document.getElementById('menuBtn'),
+      mobileMenuBtn: document.getElementById('mobileMenuBtn'),
+      leftMenu: document.getElementById('leftMenu'),
+      menuOverlay: document.getElementById('menuOverlay'),
+      menuAvatar: document.getElementById('menuAvatar'),
+      menuName: document.getElementById('menuName'),
+      menuUsername: document.getElementById('menuUsername'),
+      menuProfile: document.getElementById('menuProfile'),
+      menuNewGroup: document.getElementById('menuNewGroup'),
+      railProfile: document.getElementById('railProfile'),
       authView: document.getElementById('authView'),
       appView: document.getElementById('appView'),
       registerTab: document.getElementById('registerTab'),
@@ -619,16 +759,10 @@
       loginPassword: document.getElementById('loginPassword'),
       loginBtn: document.getElementById('loginBtn'),
       loginStatus: document.getElementById('loginStatus'),
-      selfProfileChip: document.getElementById('selfProfileChip'),
-      myAvatar: document.getElementById('myAvatar'),
-      myName: document.getElementById('myName'),
-      myUsername: document.getElementById('myUsername'),
       chatSearch: document.getElementById('chatSearch'),
       newChatBtn: document.getElementById('newChatBtn'),
       newGroupBtn: document.getElementById('newGroupBtn'),
       chatList: document.getElementById('chatList'),
-      profileBtn: document.getElementById('profileBtn'),
-      logoutBtn: document.getElementById('logoutBtn'),
       activeProfileChip: document.getElementById('activeProfileChip'),
       activeChatAvatar: document.getElementById('activeChatAvatar'),
       activeChatTitle: document.getElementById('activeChatTitle'),
@@ -677,6 +811,16 @@
 
     function showModal(id) { document.getElementById(id).classList.add('open'); }
     function closeModals() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('open')); }
+    function openMenu() {
+      state.menuOpen = true;
+      els.leftMenu.classList.add('open');
+      els.menuOverlay.classList.add('open');
+    }
+    function closeMenu() {
+      state.menuOpen = false;
+      els.leftMenu.classList.remove('open');
+      els.menuOverlay.classList.remove('open');
+    }
 
     function escapeHtml(s) {
       return String(s ?? '')
@@ -699,7 +843,7 @@
 
     function avatarHTML(url, fallback = '?') {
       if (url) return `<img src="${escapeHtml(url)}" alt="">`;
-      return escapeHtml(String(fallback).slice(0,1).toUpperCase());
+      return escapeHtml(String(fallback).slice(0, 1).toUpperCase());
     }
 
     function repInfo(profile) {
@@ -733,6 +877,7 @@
       els.appView.classList.add('hidden');
       document.body.classList.remove('mobile-chat-open');
       stopPolling();
+      closeMenu();
     }
 
     function showApp() {
@@ -862,9 +1007,10 @@
     }
 
     function renderSelf() {
-      els.myAvatar.innerHTML = avatarHTML(state.myProfile?.avatar_url, displayName(state.myProfile, 'M'));
-      els.myName.innerHTML = nameWithRep(state.myProfile, 'Me');
-      els.myUsername.textContent = displayHandle(state.myProfile);
+      const avatar = avatarHTML(state.myProfile?.avatar_url, displayName(state.myProfile, 'M'));
+      els.menuAvatar.innerHTML = avatar;
+      els.menuName.innerHTML = nameWithRep(state.myProfile, 'Me');
+      els.menuUsername.textContent = displayHandle(state.myProfile);
     }
 
     async function bootApp() {
@@ -901,9 +1047,7 @@
       els.saveProfileBtn.disabled = true;
       try {
         let avatarUrl = state.myProfile?.avatar_url || '';
-        if (state.selectedAvatarFile) {
-          avatarUrl = await uploadAvatar(state.selectedAvatarFile);
-        }
+        if (state.selectedAvatarFile) avatarUrl = await uploadAvatar(state.selectedAvatarFile);
         const payload = {
           user_id: state.user.id,
           nickname: els.profileNickname.value.trim() || 'User',
@@ -969,13 +1113,11 @@
       const other = (chat.members || []).find(m => m.user_id !== state.user.id);
       return displayName(state.profilesMap.get(other?.user_id), 'Новый чат');
     }
-
     function getChatSubtitle(chat) {
       if (chat.type === 'group') return `${(chat.members || []).length} участников`;
       const other = (chat.members || []).find(m => m.user_id !== state.user.id);
       return displayHandle(state.profilesMap.get(other?.user_id));
     }
-
     function getChatAvatar(chat) {
       if (chat.type === 'group') return { url: '', text: (chat.title || 'G')[0] || 'G' };
       const other = (chat.members || []).find(m => m.user_id !== state.user.id);
@@ -995,7 +1137,7 @@
           <div class="chat-item ${state.activeChatId === chat.id ? 'active' : ''}" data-chat-id="${chat.id}">
             <div class="avatar">${avatarHTML(avatar.url, avatar.text)}</div>
             <div style="min-width:0;">
-              <div class="chat-name">${escapeHtml(getChatTitle(chat))}</div>
+              <div class="chat-name">${nameWithRep(chat.type === 'direct' ? state.profilesMap.get((chat.members || []).find(m => m.user_id !== state.user.id)?.user_id) : {nickname: getChatTitle(chat)}, getChatTitle(chat))}</div>
               <div class="chat-preview">${escapeHtml(getChatSubtitle(chat))}</div>
             </div>
             <div class="chat-meta">
@@ -1022,7 +1164,9 @@
       if (window.innerWidth <= 980) document.body.classList.add('mobile-chat-open');
       const avatar = getChatAvatar(chat);
       els.activeChatAvatar.innerHTML = avatarHTML(avatar.url, avatar.text);
-      els.activeChatTitle.textContent = getChatTitle(chat);
+      els.activeChatTitle.innerHTML = chat.type === 'direct'
+        ? nameWithRep(state.profilesMap.get((chat.members || []).find(m => m.user_id !== state.user.id)?.user_id), getChatTitle(chat))
+        : escapeHtml(getChatTitle(chat));
       els.activeChatSubtitle.textContent = getChatSubtitle(chat);
       if (chat.type === 'direct') {
         const other = (chat.members || []).find(m => m.user_id !== state.user.id);
@@ -1032,6 +1176,7 @@
       }
       renderChatList();
       await loadMessages(chatId, true);
+      closeMenu();
     }
 
     async function loadMessages(chatId, scrollToBottom = false) {
@@ -1115,6 +1260,7 @@
       await loadProfiles();
       renderUserList();
       showModal('newChatModal');
+      closeMenu();
     }
 
     function renderUserList() {
@@ -1160,6 +1306,7 @@
       await loadProfiles();
       renderGroupUsers();
       showModal('newGroupModal');
+      closeMenu();
     }
 
     function renderGroupUsers() {
@@ -1252,6 +1399,7 @@
       const scamBtn = document.getElementById('reportScamBtn');
       if (fakeBtn) fakeBtn.addEventListener('click', () => sendReport(userId, 'fake'));
       if (scamBtn) scamBtn.addEventListener('click', () => sendReport(userId, 'scam'));
+      closeMenu();
     }
 
     async function sendReport(targetUserId, type) {
@@ -1264,10 +1412,19 @@
           created_at: new Date().toISOString(),
         });
         if (error) throw error;
-        const target = state.profilesMap.get(targetUserId);
-        const nextCount = Number(target?.reports_count || 0) + 1;
-        const { error: updateError } = await supabase.from('profiles').update({ reports_count: nextCount, updated_at: new Date().toISOString() }).eq('user_id', targetUserId);
+
+        const { count, error: countError } = await supabase
+          .from('profile_reports')
+          .select('*', { count: 'exact', head: true })
+          .eq('target_user_id', targetUserId);
+        if (countError) throw countError;
+
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ reports_count: Number(count || 0), updated_at: new Date().toISOString() })
+          .eq('user_id', targetUserId);
         if (updateError) throw updateError;
+
         await loadProfiles();
         renderSelf();
         await loadChats(false);
@@ -1285,12 +1442,15 @@
       els.loginTab.addEventListener('click', () => setAuthTab('login'));
       els.registerBtn.addEventListener('click', registerUser);
       els.loginBtn.addEventListener('click', loginUser);
-      els.logoutBtn.addEventListener('click', logoutUser);
       els.chatSearch.addEventListener('input', () => loadChats(false));
       els.newChatBtn.addEventListener('click', openNewChatModal);
       els.newGroupBtn.addEventListener('click', openGroupModal);
-      els.profileBtn.addEventListener('click', () => { fillProfileForm(); showModal('profileModal'); });
-      els.selfProfileChip.addEventListener('click', () => openProfileView(state.user.id));
+      els.menuBtn.addEventListener('click', openMenu);
+      els.mobileMenuBtn.addEventListener('click', openMenu);
+      els.menuOverlay.addEventListener('click', closeMenu);
+      els.menuProfile.addEventListener('click', () => { fillProfileForm(); showModal('profileModal'); closeMenu(); });
+      els.menuNewGroup.addEventListener('click', openGroupModal);
+      els.railProfile.addEventListener('click', () => { fillProfileForm(); showModal('profileModal'); });
       els.activeProfileChip.addEventListener('click', () => { if (state.activeProfileUserId) openProfileView(state.activeProfileUserId); });
       els.mobileBackBtn.addEventListener('click', () => document.body.classList.remove('mobile-chat-open'));
       els.refreshBtn.addEventListener('click', async () => {
