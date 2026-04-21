@@ -734,6 +734,7 @@
           </div>
         </div>
         <div class="button-row">
+          <button id="toggleAutoRefreshBtn" class="ghost-btn">Авто: вкл</button>
           <button id="refreshChatsBtn" class="ghost-btn">Обновить</button>
         </div>
       </div>
@@ -857,6 +858,7 @@
       poller: null,
       fileToSend: null,
       openModalId: null,
+      autoRefresh: true,
     };
 
     const els = {
@@ -895,6 +897,7 @@
       fileNameLine: document.getElementById('fileNameLine'),
       clearFileBtn: document.getElementById('clearFileBtn'),
       sendBtn: document.getElementById('sendBtn'),
+      toggleAutoRefreshBtn: document.getElementById('toggleAutoRefreshBtn'),
       refreshChatsBtn: document.getElementById('refreshChatsBtn'),
       profileModal: document.getElementById('profileModal'),
       profileNickname: document.getElementById('profileNickname'),
@@ -1000,6 +1003,17 @@
         clearInterval(state.poller);
         state.poller = null;
       }
+    }
+
+    function applyRefreshModeUi() {
+      if (!els.toggleAutoRefreshBtn) return;
+      els.toggleAutoRefreshBtn.textContent = state.autoRefresh ? 'Авто: вкл' : 'Авто: выкл';
+    }
+
+    function startChatPolling() {
+      clearPoller();
+      if (!state.autoRefresh || !state.activeChatId) return;
+      state.poller = setInterval(() => loadMessages(state.activeChatId, false), 2000);
     }
 
     async function registerUser() {
@@ -1300,8 +1314,7 @@
       els.activeChatSubtitle.textContent = chatSubtitle(chat);
       renderChatList();
       await loadMessages(chatId, true);
-      clearPoller();
-      state.poller = setInterval(() => loadMessages(chatId, false), 3000);
+      startChatPolling();
     }
 
     async function loadMessages(chatId, scrollToBottom = false) {
@@ -1549,6 +1562,19 @@
       els.groupUserSearch.addEventListener('input', renderGroupUsers);
       els.chatSearch.addEventListener('input', loadChats);
       els.sendBtn.addEventListener('click', sendMessage);
+      els.toggleAutoRefreshBtn.addEventListener('click', async () => {
+        state.autoRefresh = !state.autoRefresh;
+        applyRefreshModeUi();
+        if (state.activeChatId) {
+          if (state.autoRefresh) {
+            await loadMessages(state.activeChatId, false);
+            startChatPolling();
+          } else {
+            clearPoller();
+          }
+        }
+        showToast(state.autoRefresh ? 'Автообновление включено' : 'Автообновление выключено');
+      });
       els.refreshChatsBtn.addEventListener('click', async () => { await loadChats(); if (state.activeChatId) await loadMessages(state.activeChatId, false); showToast('Обновлено'); });
       els.messageInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -1575,6 +1601,7 @@
     }
 
     async function init() {
+      applyRefreshModeUi();
       bindEvents();
       setAuthMode('register');
       renderEmptyChat();
