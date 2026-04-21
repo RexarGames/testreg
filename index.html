@@ -654,6 +654,7 @@
       unreadCounts: {},
       lastMessageSeenAt: null,
       menuOpen: false,
+      messagesLoadToken: 0,
     };
 
     const els = {
@@ -1107,8 +1108,11 @@
     }
 
     async function loadMessages(chatId, scrollToBottom = false) {
+      const token = ++state.messagesLoadToken;
       const { data, error } = await supabase.from('messages').select('*').eq('conversation_id', chatId).order('created_at', { ascending: true });
       if (error) throw error;
+      if (chatId !== state.activeChatId) return;
+      if (token !== state.messagesLoadToken) return;
       state.activeMessages = data || [];
       renderMessages(scrollToBottom);
     }
@@ -1372,7 +1376,13 @@
       els.menuNewGroup.addEventListener('click', openGroupModal);
       els.menuLogout.addEventListener('click', logoutUser);
       els.activeProfileChip.addEventListener('click', () => { if (state.activeProfileUserId) openProfileView(state.activeProfileUserId); });
-      els.mobileBackBtn.addEventListener('click', () => document.body.classList.remove('mobile-chat-open'));
+      els.mobileBackBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.body.classList.remove('mobile-chat-open');
+        state.activeChatId = null;
+        renderChatList();
+        renderEmpty();
+      });
       els.refreshBtn.addEventListener('click', async () => {
         await loadChats(false);
         if (state.activeChatId) await loadMessages(state.activeChatId, false);
