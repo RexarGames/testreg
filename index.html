@@ -3,35 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Messenger + Channels</title>
+  <title>DGram Messenger</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #0e1621;
       --panel: #17212b;
-      --line: #22303d;
-      --text: #e6eef6;
-      --muted: #8ea1b3;
+      --line: #1e2c38;
+      --text: #e8edf3;
+      --muted: #7a96ab;
       --blue: #2aabee;
-      --danger: #ef5350;
+      --danger: #e05151;
       --bubble-me: #2b5278;
-      --bubble-other: #182533;
-      --menu-width: 300px;
+      --bubble-other: #1c2b38;
+      --menu-width: 280px;
     }
     * { box-sizing:border-box; }
     html, body { height:100%; }
-    body { margin:0; font-family:Inter, Arial, sans-serif; background:var(--bg); color:var(--text); overflow:hidden; }
+    body { margin:0; font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background:var(--bg); color:var(--text); overflow:hidden; font-size:14px; -webkit-font-smoothing:antialiased; }
     .hidden { display:none !important; }
     .mobile-only { display:none; }
     button,input,textarea,select { font:inherit; }
-    input,textarea,select { width:100%; border:1px solid var(--line); background:#101922; color:var(--text); border-radius:10px; padding:12px 14px; outline:none; }
+    input,textarea,select { width:100%; border:1px solid var(--line); background:#111c28; color:var(--text); border-radius:10px; padding:11px 14px; outline:none; appearance:none; -webkit-appearance:none; }
+    select { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a96ab' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:36px; cursor:pointer; }
+    select option { background:#17212b; }
     textarea { resize:vertical; min-height:52px; }
-    input::placeholder,textarea::placeholder { color:#6f8396; }
-    input:focus,textarea:focus,select:focus { border-color:var(--blue); }
+    input::placeholder,textarea::placeholder { color:#4a6175; }
+    input:focus,textarea:focus,select:focus { border-color:var(--blue); background:#131e2a; }
     .btn { border:0; border-radius:10px; padding:10px 14px; cursor:pointer; transition:.18s ease; }
     .btn:hover { opacity:.92; }
     .btn:disabled { opacity:.55; cursor:default; }
-    .btn-primary { background:var(--blue); color:#fff; }
-    .btn-secondary { background:#223140; color:var(--text); }
+    .btn-primary { background:var(--blue); color:#fff; font-weight:600; }
+    .btn-secondary { background:#1e2d3a; color:var(--text); border:1px solid var(--line); }
     .btn-danger { background:#402126; color:#ffc7c7; }
     .icon-btn { width:40px; height:40px; border:0; border-radius:8px; background:transparent; color:var(--text); cursor:pointer; }
     .icon-btn:hover { background:rgba(255,255,255,.06); }
@@ -48,35 +52,36 @@
     .field-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
     .status { min-height:20px; color:var(--muted); font-size:14px; }
 
-    .app-shell { height:100vh; display:grid; grid-template-columns:330px 1fr; }
-    .sidebar { background:var(--panel); border-right:1px solid rgba(255,255,255,.05); display:grid; grid-template-rows:auto auto 1fr; min-height:0; }
-    .sidebar-top { padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.05); display:grid; gap:10px; }
-    .sidebar-top-row { display:flex; align-items:center; gap:10px; }
-    .mode-tabs { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-    .mode-tab { border:1px solid var(--line); background:#13202b; color:var(--text); border-radius:10px; padding:10px; cursor:pointer; }
-    .mode-tab.active { background:#203445; border-color:#2d4356; }
-    .search-input { border-radius:18px; background:#3b4652; border:0; padding:10px 14px; color:white; }
+    .app-shell { height:100vh; display:grid; grid-template-columns:320px 1fr; }
+    .sidebar { background:var(--panel); border-right:1px solid var(--line); display:grid; grid-template-rows:auto auto 1fr; min-height:0; }
+    .sidebar-top { padding:8px 10px; border-bottom:1px solid var(--line); display:grid; gap:8px; }
+    .sidebar-top-row { display:flex; align-items:center; gap:8px; }
+    .mode-tabs { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+    .mode-tab { border:none; background:transparent; color:var(--muted); border-radius:8px; padding:8px; cursor:pointer; font-weight:600; font-size:13px; }
+    .mode-tab.active { background:#1e2d3a; color:var(--text); }
+    .search-input { border-radius:22px; background:#1e2d3a; border:none; padding:9px 14px; color:white; font-size:14px; }
     .list-wrap { overflow:auto; min-height:0; }
-    .list-item { display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center; padding:10px 12px; cursor:pointer; transition:.15s ease; }
-    .list-item:hover,.list-item.active { background:#20303f; }
-    .avatar { width:52px; height:52px; min-width:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; color:white; background:#2a3b4a; font-size:24px; overflow:hidden; }
+    .list-item { display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center; padding:10px 14px; cursor:pointer; transition:.12s ease; border-bottom:1px solid rgba(255,255,255,.02); }
+    .list-item:hover,.list-item.active { background:#1e2d3a; }
+    .avatar { width:50px; height:50px; min-width:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; color:white; background:#2a3b4a; font-size:22px; overflow:hidden; }
     .avatar.fallback { font-size:18px; }
     .item-name { font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:6px; }
     .item-sub { color:var(--muted); font-size:14px; margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .item-meta { display:flex; flex-direction:column; align-items:flex-end; gap:6px; font-size:12px; color:var(--muted); }
-    .unread-badge { min-width:22px; height:22px; padding:0 7px; border-radius:999px; display:inline-flex; align-items:center; justify-content:center; background:var(--blue); color:white; font-size:12px; font-weight:700; }
+    .unread-badge { min-width:20px; height:20px; padding:0 6px; border-radius:999px; display:inline-flex; align-items:center; justify-content:center; background:#4dca6b; color:white; font-size:11px; font-weight:700; }
 
-    .main { display:grid; grid-template-rows:64px 1fr auto; min-height:0; background:#0b141a; }
-    .topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:0 14px; border-bottom:1px solid rgba(255,255,255,.05); background:var(--panel); }
+    .main { display:grid; grid-template-rows:60px 1fr auto; min-height:0; background:#0e1621; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:0 16px; border-bottom:1px solid var(--line); background:var(--panel); }
     .topbar-left { display:flex; align-items:center; gap:12px; min-width:0; cursor:pointer; }
     .title-wrap { min-width:0; }
-    .title-main { font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .title-sub { color:var(--muted); font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .content-scroll { overflow:auto; min-height:0; padding:18px; display:flex; flex-direction:column; gap:10px; background:radial-gradient(circle at center, rgba(255,255,255,.03), transparent 35%), #0e1621; }
+    .title-main { font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:15px; }
+    .title-sub { color:var(--muted); font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .content-scroll { overflow:auto; min-height:0; padding:16px 20px; display:flex; flex-direction:column; gap:6px; background:#0e1621; }
+    .msg { max-width:min(72%,680px); padding:9px 13px; border-radius:16px; background:var(--bubble-other); align-self:flex-start; }
+    .msg.mine { background:var(--bubble-me); align-self:flex-end; border-bottom-right-radius:4px; }
+    .msg:not(.mine) { border-bottom-left-radius:4px; }
     .empty { height:100%; display:grid; place-items:center; color:var(--muted); text-align:center; padding:20px; }
-    .msg { max-width:min(75%,760px); padding:10px 12px; border-radius:14px; background:var(--bubble-other); align-self:flex-start; border:1px solid rgba(255,255,255,.03); }
-    .msg.mine { background:var(--bubble-me); align-self:flex-end; }
-    .msg-head { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:12px; color:#aac3d8; margin-bottom:5px; }
+    .msg-head { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:12px; color:#7a96ab; margin-bottom:4px; }
     .msg-body { white-space:pre-wrap; word-break:break-word; line-height:1.5; }
 
     .channel-post { background:var(--panel); border:1px solid rgba(255,255,255,.05); border-radius:16px; padding:16px; }
@@ -87,9 +92,10 @@
     .reaction-btn { border:1px solid rgba(255,255,255,.08); background:#223140; color:var(--text); border-radius:999px; padding:8px 12px; cursor:pointer; }
     .reaction-btn.active { background:#2aabee; color:white; }
 
-    .composer { padding:12px; border-top:1px solid rgba(255,255,255,.05); background:var(--panel); }
-    .composer-row { display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center; }
-    .composer textarea { min-height:48px; max-height:180px; border-radius:18px; background:#17212b; }
+    .composer { padding:10px 14px; border-top:1px solid var(--line); background:var(--panel); }
+    .composer-row { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; }
+    .composer textarea { min-height:42px; max-height:160px; border-radius:22px; background:#1e2d3a; border-color:transparent; padding:10px 16px; }
+    .composer textarea:focus { border-color:var(--blue); }
 
     .menu-overlay { position:fixed; inset:0; background:rgba(0,0,0,.4); display:none; z-index:40; }
     .menu-overlay.open { display:block; }
@@ -174,17 +180,6 @@
   
     #viewProfileModal .modal-head { display:none; }
     #refreshBtn, #blockUserBtn { display:none !important; }
-    .btn.btn-primary { background:#f1c94d !important; color:#ffffff !important; }
-    .btn.btn-secondary { background:#1f2228 !important; color:#ffffff !important; }
-    .modal-card { background:#17191e; }
-    body { background:#141518; }
-
-  
-    body { background:#15171b !important; }
-    .app, .main, .sidebar, .messages, .composer, .topbar, .modal-card, .left-menu { background-color:#17191e !important; }
-    .btn.btn-primary { background:#f0cb57 !important; color:#ffffff !important; }
-    .btn.btn-secondary { background:#22252c !important; color:#ffffff !important; }
-    #refreshBtn, #blockUserBtn { display:none !important; }
     #viewProfileModal .modal-head { display:none !important; }
     .profile-avatar-center { background:transparent !important; box-shadow:none !important; width:140px !important; height:140px !important; min-width:140px !important; }
     .profile-avatar-center .avatar { width:140px !important; height:140px !important; min-width:140px !important; font-size:54px !important; box-shadow:0 14px 30px rgba(0,0,0,.24); }
@@ -221,14 +216,14 @@
       <div id="menuNewChannel" class="menu-item">📢 <span>Новый канал</span></div>
       <div id="menuLogout" class="menu-item">🚪 <span>Выйти</span></div>
     </div>
-    <div class="menu-footer">Каналы + блокировка + реакции</div>
+    <div class="menu-footer">DGram · Сделано с ❤️</div>
   </aside>
 
   <section id="authView" class="auth-wrap">
     <div class="auth-card">
       <div class="auth-side">
-        <h1>Messenger</h1>
-        <p>Полный код с каналами, блокировкой пользователей, подписками, просмотрами постов и реакциями.</p>
+        <h1>DGram</h1>
+        <p>Мессенджер с каналами, NFT подарками, профилями и подписками. Войди или создай аккаунт.</p>
       </div>
       <div class="auth-main">
         <div class="tabs">
@@ -296,8 +291,8 @@
 
       <div class="composer">
         <div class="composer-row">
-          <textarea id="messageInput" placeholder="Сообщение или пост"></textarea>
-          <button id="sendBtn" class="btn btn-primary">Отправить</button>
+          <textarea id="messageInput" placeholder="Написать сообщение..."></textarea>
+          <button id="sendBtn" class="btn btn-primary" style="width:44px;height:44px;border-radius:50%;padding:0;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;">➤</button>
         </div>
       </div>
       <div id="channelSubscribeBottom" class="composer-subscribe"><button id="channelSubscribeBottomBtn" class="btn btn-primary" style="width:100%">Подписаться</button></div>
@@ -321,7 +316,16 @@
           <input id="profileAvatarEmoji" placeholder="Эмодзи для аватарки, например 😎" />
           <input id="profileAvatarBg" type="color" value="#2a3b4a" />
         </div>
-        <input id="profileCover" placeholder="Фон профиля: цвет, градиент или URL картинки" />
+        <select id="profileCover">
+          <option value="">— Без фона —</option>
+          <option value="linear-gradient(135deg,#1a1b20,#131417)">Default Dark</option>
+          <option value="linear-gradient(135deg,#1e1431,#4c1d95,#0f0f12)">Purple Neon</option>
+          <option value="linear-gradient(135deg,#17110a,#5a4311,#111214)">Gold Night</option>
+          <option value="linear-gradient(135deg,#0e1835,#1d4ed8,#101217)">Blue Pulse</option>
+          <option value="linear-gradient(135deg,#0f2418,#1a5e35,#101214)">Forest Green</option>
+          <option value="linear-gradient(135deg,#1a1018,#7c1d3d,#111214)">Deep Rose</option>
+          <option value="linear-gradient(135deg,#111a1c,#1e4d55,#0f1415)">Ocean Teal</option>
+        </select>
         <button id="saveProfileBtn" class="btn btn-primary">Сохранить профиль</button>
       </div>
     </div>
@@ -589,7 +593,7 @@
     function showApp(){els.authView.classList.add('hidden');els.appView.classList.remove('hidden')}
     function setAuthTab(tab){const reg=tab==='register';els.registerTab.classList.toggle('active',reg);els.loginTab.classList.toggle('active',!reg);els.registerForm.classList.toggle('hidden',!reg);els.loginForm.classList.toggle('hidden',reg)}
     function stopPolling(){if(state.polling){clearInterval(state.polling);state.polling=null}}
-    function startPolling(){stopPolling();state.polling=setInterval(async()=>{if(state.tickBusy)return;state.tickBusy=true;try{if(state.activeMode==='chats'){await loadChats(false);if(state.activeChatId)await loadMessages(state.activeChatId,false);await checkForNewMessages()}else{await loadChannels();if(state.activeChannelId)await loadChannelPosts(state.activeChannelId,false)}}catch(e){console.error(e)}finally{state.tickBusy=false}},1000)}
+    function startPolling(){stopPolling();state.polling=setInterval(async()=>{if(state.tickBusy)return;state.tickBusy=true;try{if(state.activeMode==='chats'){await loadChats(false);if(state.activeChatId){await loadMessages(state.activeChatId,false)}await checkForNewMessages()}else{await loadChannels();if(state.activeChannelId)await loadChannelPosts(state.activeChannelId,false)}}catch(e){console.error(e)}finally{state.tickBusy=false}},3000)}
 
     async function registerUser(){try{setStatus(els.registerStatus,'Создание аккаунта...');const nickname=els.regNickname.value.trim()||'User';const username=normalizeUsername(els.regUsername.value||nickname);const email=els.regEmail.value.trim();const password=els.regPassword.value;if(!email||!password||password.length<6){setStatus(els.registerStatus,'Проверь данные.',true);return}if(await isUsernameTaken(username)){setStatus(els.registerStatus,'Этот username уже занят.',true);return}const {data,error}=await supabase.auth.signUp({email,password});if(error) throw error;if(data.session?.user){state.user=data.session.user;await supabase.from('profiles').upsert({user_id:state.user.id,nickname,username,bio:'',avatar_emoji:'',avatar_bg:'#2a3b4a',profile_cover:'',updated_at:new Date().toISOString()});await bootApp();toast('Аккаунт создан')}else setStatus(els.registerStatus,'Аккаунт создан. Подтверди почту, если включено подтверждение.',false)}catch(e){console.error(e);setStatus(els.registerStatus,e.message||'Ошибка регистрации',true)}}
     async function loginUser(){try{setStatus(els.loginStatus,'Вход...');const {data,error}=await supabase.auth.signInWithPassword({email:els.loginEmail.value.trim(),password:els.loginPassword.value});if(error)throw error;state.user=data.user;await bootApp();toast('Вход выполнен')}catch(e){console.error(e);setStatus(els.loginStatus,e.message||'Ошибка входа',true)}}
@@ -599,10 +603,10 @@
     async function loadBlocks(){const {data,error}=await supabase.from('blocked_users').select('*').or(`blocker_id.eq.${state.user.id},blocked_user_id.eq.${state.user.id}`);if(error)return;state.blockedSet=new Set();state.blockedBySet=new Set();(data||[]).forEach(r=>{if(r.blocker_id===state.user.id)state.blockedSet.add(r.blocked_user_id);if(r.blocked_user_id===state.user.id)state.blockedBySet.add(r.blocker_id)})}
     function renderSelf(){els.menuAvatar.outerHTML=avatarHTML(state.myProfile);const newAvatar=els.leftMenu.querySelector('.avatar');newAvatar.id='menuAvatar';els.menuAvatar=newAvatar;els.menuName.innerHTML=nameWithDecor(state.myProfile,'Me');els.menuUsername.textContent=displayHandle(state.myProfile)}
     async function bootApp(){try{if(state.booting)return;state.booting=true;stopPolling();showApp();await ensureMyProfile();await loadProfiles();await loadBlocks();applyWalletAppearance();renderSelf();fillProfileForm();await loadChats(true);await loadChannels();if(!state.lastMessageSeenAt)state.lastMessageSeenAt=new Date().toISOString();startPolling()}finally{state.booting=false}}
-    function fillProfileForm(){els.profileNickname.value=state.myProfile?.nickname||'';els.profileUsername.value=state.myProfile?.username||'';els.profileBio.value=state.myProfile?.bio||'';els.profileEmail.value=state.user?.email||'';els.profileAvatarEmoji.value=state.myProfile?.avatar_emoji||'';els.profileAvatarBg.value=state.myProfile?.avatar_bg||'#2a3b4a';els.profileCover.value=state.myProfile?.profile_cover||''}
+    function fillProfileForm(){els.profileNickname.value=state.myProfile?.nickname||'';els.profileUsername.value=state.myProfile?.username||'';els.profileBio.value=state.myProfile?.bio||'';els.profileEmail.value=state.user?.email||'';els.profileAvatarEmoji.value=state.myProfile?.avatar_emoji||'';els.profileAvatarBg.value=state.myProfile?.avatar_bg||'#2a3b4a';const coverVal=state.myProfile?.profile_cover||'';els.profileCover.value=coverVal||''}
     async function saveProfile(){if(state.busyProfileSave)return;state.busyProfileSave=true;els.saveProfileBtn.disabled=true;try{const username=normalizeUsername(els.profileUsername.value||els.profileNickname.value);if(await isUsernameTaken(username,state.user.id)){toast('Этот username уже занят');return}const payload={user_id:state.user.id,nickname:els.profileNickname.value.trim()||'User',username,bio:els.profileBio.value.trim(),avatar_emoji:els.profileAvatarEmoji.value.trim(),avatar_bg:els.profileAvatarBg.value||'#2a3b4a',profile_cover:els.profileCover.value.trim(),updated_at:new Date().toISOString()};const {data,error}=await supabase.from('profiles').upsert(payload).select().single();if(error)throw error;state.myProfile=data;await loadProfiles();renderSelf();fillProfileForm();await loadChats(false);if(state.activeChatId)await loadMessages(state.activeChatId,false);closeModals();toast('Профиль сохранён')}catch(e){console.error(e);toast('Ошибка сохранения профиля')}finally{state.busyProfileSave=false;els.saveProfileBtn.disabled=false}}
 
-    function setMode(mode){state.activeMode=mode;els.modeChatsBtn.classList.toggle('active',mode==='chats');els.modeChannelsBtn.classList.toggle('active',mode==='channels');els.chatList.classList.toggle('hidden',mode!=='chats');els.channelList.classList.toggle('hidden',mode!=='channels');els.channelSubscribeBtn.classList.toggle('hidden',mode!=='channels'||!state.activeChannelId);els.channelManageBtn.classList.toggle('hidden',true);els.blockUserBtn.classList.toggle('hidden',true);closeMenu();renderEmpty()}
+    function setMode(mode){state.activeMode=mode;els.modeChatsBtn.classList.toggle('active',mode==='chats');els.modeChannelsBtn.classList.toggle('active',mode==='channels');els.chatList.classList.toggle('hidden',mode!=='chats');els.channelList.classList.toggle('hidden',mode!=='channels');els.channelSubscribeBtn.classList.toggle('hidden',mode!=='channels'||!state.activeChannelId);els.channelManageBtn.classList.toggle('hidden',true);els.blockUserBtn.classList.toggle('hidden',true);closeMenu()}
 
     async function loadChats(resetIfMissing=false){const {data:myMembers,error:memberErr}=await supabase.from('conversation_members').select('conversation_id').eq('user_id',state.user.id);if(memberErr)throw memberErr;const ids=[...new Set((myMembers||[]).map(x=>x.conversation_id))];if(!ids.length){state.chats=[];renderChatList();if(resetIfMissing&&state.activeMode==='chats')renderEmpty();return}const {data:conversations,error:convErr}=await supabase.from('conversations').select('*').in('id',ids).order('updated_at',{ascending:false});if(convErr)throw convErr;const {data:members,error:membersErr}=await supabase.from('conversation_members').select('*').in('conversation_id',ids);if(membersErr)throw membersErr;const membersMap={};for(const m of members||[]){if(!membersMap[m.conversation_id])membersMap[m.conversation_id]=[];membersMap[m.conversation_id].push(m)}state.chats=(conversations||[]).map(c=>({...c,members:membersMap[c.id]||[]}));renderChatList();if(state.activeChatId&&!state.chats.some(c=>c.id===state.activeChatId)&&state.activeMode==='chats')renderEmpty()}
     const getChatTitle=chat=>chat.type==='group'?(chat.title||'Группа'):displayName(state.profilesMap.get((chat.members||[]).find(m=>m.user_id!==state.user.id)?.user_id),'Новый чат');
@@ -614,9 +618,9 @@
     function channelSubsCount(id){return (state.channelSubsMap.get(id)||[]).length}
     function renderChannelList(){const term=els.chatSearch.value.trim().toLowerCase();const list=state.channels.filter(ch=>!term||(ch.title||'').toLowerCase().includes(term)||(ch.description||'').toLowerCase().includes(term));if(!list.length){els.channelList.innerHTML=`<div class="empty"><div>Каналов пока нет</div></div>`;return}els.channelList.innerHTML=list.map(ch=>{const avatar=avatarHTML({avatar_emoji:ch.avatar_emoji,avatar_bg:ch.avatar_bg,nickname:ch.title});return `<div class="list-item ${state.activeMode==='channels'&&state.activeChannelId===ch.id?'active':''}" data-channel-id="${ch.id}">${avatar}<div style="min-width:0;"><div class="item-name">${escapeHtml(ch.title||'Канал')}</div><div class="item-sub">${channelSubsCount(ch.id)} подписчиков</div></div><div class="item-meta"><div>${escapeHtml(formatTime(ch.created_at))}</div></div></div>`}).join('')}
 
-    async function openChat(chatId){state.activeMode='chats';setMode('chats');state.activeChatId=chatId;state.unreadCounts[chatId]=0;const chat=state.chats.find(c=>c.id===chatId);if(!chat)return;if(window.innerWidth<=980)document.body.classList.add('mobile-chat-open');const profile=getChatProfile(chat);if(chat.type==='direct'&&profile){els.activeChatAvatar.outerHTML=avatarHTML(profile);const newAvatar=els.activeProfileChip.querySelector('.avatar');newAvatar.id='activeChatAvatar';els.activeChatAvatar=newAvatar;els.activeChatTitle.innerHTML=nameWithDecor(profile,getChatTitle(chat));state.activeProfileUserId=profile.user_id;}else{els.activeChatAvatar.innerHTML=escapeHtml((chat.title||'G').slice(0,1));els.activeChatAvatar.style.background='#2a3b4a';els.activeChatTitle.textContent=getChatTitle(chat);state.activeProfileUserId=null;els.composerWrap.classList.remove('hidden-composer');els.channelSubscribeBottom.classList.remove('show')}els.activeChatSubtitle.textContent=getChatSubtitle(chat);els.channelSubscribeBtn.classList.add('hidden');els.channelManageBtn.classList.add('hidden');els.composerWrap.classList.remove('hidden-composer');els.channelSubscribeBottom.classList.remove('show');await loadMessages(chatId,true);closeMenu()}
+    async function openChat(chatId){state.activeMode='chats';state.activeChatId=chatId;state.unreadCounts[chatId]=0;const chat=state.chats.find(c=>c.id===chatId);if(!chat)return;if(window.innerWidth<=980)document.body.classList.add('mobile-chat-open');const profile=getChatProfile(chat);if(chat.type==='direct'&&profile){els.activeChatAvatar.outerHTML=avatarHTML(profile);const newAvatar=els.activeProfileChip.querySelector('.avatar');newAvatar.id='activeChatAvatar';els.activeChatAvatar=newAvatar;els.activeChatTitle.innerHTML=nameWithDecor(profile,getChatTitle(chat));state.activeProfileUserId=profile.user_id}else{els.activeChatAvatar.textContent=escapeHtml((chat.title||'G').slice(0,1));els.activeChatAvatar.style.background='#2a3b4a';els.activeChatTitle.textContent=getChatTitle(chat);state.activeProfileUserId=null}els.activeChatSubtitle.textContent=getChatSubtitle(chat);els.channelSubscribeBtn.classList.add('hidden');els.channelManageBtn.classList.add('hidden');els.composerWrap.classList.remove('hidden-composer');els.channelSubscribeBottom.classList.remove('show');try{await loadMessages(chatId,true)}catch(e){console.error(e);toast('Ошибка загрузки сообщений')}closeMenu()}
 
-    async function openChannel(channelId){state.activeMode='channels';setMode('channels');state.activeChannelId=channelId;const channel=state.channels.find(c=>c.id===channelId);if(!channel)return;if(window.innerWidth<=980)document.body.classList.add('mobile-chat-open');els.activeChatAvatar.outerHTML=avatarHTML({avatar_emoji:channel.avatar_emoji,avatar_bg:channel.avatar_bg,nickname:channel.title});const newAvatar=els.activeProfileChip.querySelector('.avatar');newAvatar.id='activeChatAvatar';els.activeChatAvatar=newAvatar;els.activeChatTitle.textContent=channel.title||'Канал';els.activeChatSubtitle.textContent=`${channelSubsCount(channel.id)} подписчиков`;state.activeProfileUserId=null;await updateChannelHeader(channelId);await loadChannelPosts(channelId,true);closeMenu()}
+    async function openChannel(channelId){state.activeMode='channels';state.activeChannelId=channelId;const channel=state.channels.find(c=>c.id===channelId);if(!channel)return;if(window.innerWidth<=980)document.body.classList.add('mobile-chat-open');els.activeChatAvatar.outerHTML=avatarHTML({avatar_emoji:channel.avatar_emoji,avatar_bg:channel.avatar_bg,nickname:channel.title});const newAvatar=els.activeProfileChip.querySelector('.avatar');newAvatar.id='activeChatAvatar';els.activeChatAvatar=newAvatar;els.activeChatTitle.textContent=channel.title||'Канал';els.activeChatSubtitle.textContent=`${channelSubsCount(channel.id)} подписчиков`;state.activeProfileUserId=null;await updateChannelHeader(channelId);try{await loadChannelPosts(channelId,true)}catch(e){console.error(e);toast('Ошибка загрузки постов')}closeMenu()}
 
     async function updateChannelHeader(channelId){const channel=state.channels.find(c=>c.id===channelId);const subs=state.channelSubsMap.get(channelId)||[];const me=subs.find(s=>s.user_id===state.user.id);state.activeChannelRole=me?.role||null;els.channelSubscribeBtn.classList.remove('hidden');els.channelSubscribeBtn.textContent=me?(me.role==='owner'?'Удалить канал':'Отписаться'):'Подписаться';els.channelManageBtn.classList.toggle('hidden',state.activeChannelRole!=='owner');const canWrite=['owner','admin'].includes(state.activeChannelRole||'');els.composerWrap.classList.toggle('hidden-composer',!canWrite);els.channelSubscribeBottom.classList.toggle('show',!canWrite);els.channelSubscribeBottomBtn.textContent=me?(me.role==='owner'?'Удалить канал':'Вы подписаны'):'Подписаться';}
 
@@ -631,7 +635,7 @@
 
     function renderChannelPosts(posts,reactionMap,myReacts,viewMap,scrollToBottom=false){if(!posts.length){els.messagesWrap.innerHTML=`<div class="empty"><div>Постов пока нет</div></div>`;return}els.messagesWrap.innerHTML=posts.map(post=>{const author=state.profilesMap.get(post.author_id);const reacts=['👍','🔥','❤️'].map(r=>{const count=(reactionMap[post.id]&&reactionMap[post.id][r])||0;const active=myReacts[post.id]&&myReacts[post.id].has(r);return `<button class="reaction-btn ${active?'active':''}" data-react-post="${post.id}" data-reaction="${r}">${r} ${count||''}</button>`}).join('');return `<div class="channel-post"><div class="channel-post-head"><div><div class="item-name">${nameWithDecor(author,'Автор')}</div><div class="tiny">${escapeHtml(formatTime(post.created_at))}</div></div></div><div class="channel-post-body">${escapeHtml(post.content||'')}</div><div class="post-stats"><span>👁 ${viewMap[post.id]||0}</span></div><div class="reactions">${reacts}</div></div>`}).join('');if(scrollToBottom)els.messagesWrap.scrollTop=0}
 
-    async function sendMessageOrPost(){if(state.busySend)return;const body=els.messageInput.value.trim();if(!body){toast('Сообщение пустое');return}state.busySend=true;els.sendBtn.disabled=true;try{if(state.activeMode==='channels'&&state.activeChannelId){if(!['owner','admin'].includes(state.activeChannelRole||'')){toast('Публиковать посты могут только владелец и назначенные админы');return}const {error}=await supabase.from('channel_posts').insert({channel_id:state.activeChannelId,author_id:state.user.id,content:body});if(error)throw error;els.messageInput.value='';await loadChannelPosts(state.activeChannelId,true)}else{if(!state.activeChatId){toast('Сначала открой чат');return}const chat=state.chats.find(c=>c.id===state.activeChatId);const other=(chat?.members||[]).find(m=>m.user_id!==state.user.id)?.user_id;if(other&&(state.blockedSet.has(other)||state.blockedBySet.has(other))){toast('Обмен сообщениями недоступен: пользователь заблокирован');return}const {error}=await supabase.from('messages').insert({conversation_id:state.activeChatId,sender_id:state.user.id,body});if(error)throw error;await supabase.from('conversations').update({updated_at:new Date().toISOString()}).eq('id',state.activeChatId);els.messageInput.value='';await loadChats(false);await loadMessages(state.activeChatId,true)}}catch(e){console.error(e);toast('Ошибка отправки')}finally{state.busySend=false;els.sendBtn.disabled=false}}
+    async function sendMessageOrPost(){if(state.busySend)return;const body=els.messageInput.value.trim();if(!body){toast('Сообщение пустое');return}state.busySend=true;els.sendBtn.disabled=true;try{if(state.activeMode==='channels'&&state.activeChannelId){if(!['owner','admin'].includes(state.activeChannelRole||'')){toast('Публиковать посты могут только владелец и назначенные админы');return}const {error}=await supabase.from('channel_posts').insert({channel_id:state.activeChannelId,author_id:state.user.id,content:body});if(error){console.error(error);toast('Ошибка публикации');return}els.messageInput.value='';await loadChannelPosts(state.activeChannelId,true)}else if(state.activeMode==='chats'&&state.activeChatId){const chat=state.chats.find(c=>c.id===state.activeChatId);const other=(chat?.members||[]).find(m=>m.user_id!==state.user.id)?.user_id;if(other&&(state.blockedSet.has(other)||state.blockedBySet.has(other))){toast('Обмен сообщениями недоступен: пользователь заблокирован');return}const {error}=await supabase.from('messages').insert({conversation_id:state.activeChatId,sender_id:state.user.id,body});if(error){console.error(error);toast('Ошибка отправки');return}await supabase.from('conversations').update({updated_at:new Date().toISOString()}).eq('id',state.activeChatId);els.messageInput.value='';await loadMessages(state.activeChatId,true);await loadChats(false)}else{toast('Сначала открой чат')}}catch(e){console.error(e);toast('Ошибка отправки')}finally{state.busySend=false;els.sendBtn.disabled=false}}
 
     async function openNewChatModal(){await loadProfiles();renderUserList();showModal('newChatModal');closeMenu()}
     function renderUserList(){const term=els.userSearch.value.trim().toLowerCase();const users=state.profiles.filter(p=>p.user_id!==state.user.id&&!state.blockedSet.has(p.user_id)).filter(p=>!term||displayName(p).toLowerCase().includes(term)||displayHandle(p).toLowerCase().includes(term));if(!users.length){els.userList.innerHTML=`<div class="empty"><div>Никого не найдено</div></div>`;return}els.userList.innerHTML=users.map(p=>`<div class="user-row">${avatarHTML(p)}<div><div class="item-name">${nameWithDecor(p,'User')}</div><div class="tiny">${escapeHtml(displayHandle(p))}</div></div><button class="btn btn-primary" data-start-chat="${p.user_id}">Чат</button></div>`).join('')}
@@ -647,7 +651,19 @@
 
     async function checkForNewMessages(){if(state.activeMode!=='chats')return;try{if(!state.user||!state.chats.length)return;const ids=state.chats.map(c=>c.id);if(!ids.length)return;const since=state.lastMessageSeenAt||new Date().toISOString();const {data,error}=await supabase.from('messages').select('*').in('conversation_id',ids).gt('created_at',since).order('created_at',{ascending:true});if(error)throw error;if(data&&data.length){for(const msg of data){if(msg.sender_id===state.user.id)continue;if(msg.conversation_id!==state.activeChatId){state.unreadCounts[msg.conversation_id]=(state.unreadCounts[msg.conversation_id]||0)+1;const chat=state.chats.find(c=>c.id===msg.conversation_id);toast(`Новое сообщение: ${chat?getChatTitle(chat):'Messenger'}`)}}state.lastMessageSeenAt=data[data.length-1].created_at;renderChatList()}}catch(e){console.error(e)}}
 
-    function openProfileView(userId){const p=state.profilesMap.get(userId);if(!p)return;const warning=PREFIX_BY_USERNAME[p.username?.toLowerCase?.()]?.notice;const blocked=state.blockedSet.has(userId);const createdChannel=state.channels.find(c=>c.owner_id===userId)||null;const subsCount=createdChannel?(state.channelSubsMap.get(createdChannel.id)||[]).length:0;const gifts=(userId===state.user.id?state.wallet.ownedGifts.map(id=>SHOP_GIFTS.find(x=>x.id===id)).filter(Boolean):[]); if(!gifts.length && userId===state.user.id && state.wallet.activeGift){ const activeGift=SHOP_GIFTS.find(x=>x.id===state.wallet.activeGift); if(activeGift) gifts.push(activeGift); }const giftNodes=(gifts.length?gifts.slice(0,6):[]).map((g,i)=>`<div class="floating-gift g${i+1}">${escapeHtml(g.emoji)}</div>`).join('');els.viewProfileContent.innerHTML=`<div class="profile-public"><div class="profile-hero" style="${coverStyle(p)}"><button class="profile-back-btn" data-close="viewProfileModal">‹</button><div class="profile-hero-inner"><div><div class="profile-avatar-stage"><div class="profile-avatar-center">${avatarHTML(p,'big')}</div>${giftNodes}</div><div class="profile-public-name">${nameWithDecor(p,'User')}</div><div class="profile-public-status">${escapeHtml(displayHandle(p))}</div>${warning?`<div style="margin:16px auto 0;max-width:760px;padding:12px 14px;border-radius:14px;border:1px solid #ff6a6a;background:rgba(255,0,0,.08);color:#ffb0b0;line-height:1.55;">${escapeHtml(warning)}</div>`:''}</div></div></div><div class="profile-public-grid"><div class="profile-public-card"><div style="font-size:15px;color:#cfd3d8;font-weight:800;margin-bottom:10px;">username</div><div class="username-box"><div style="font-size:22px;color:#3557ff;font-weight:900;">${escapeHtml(displayHandle(p))}</div>${p.bio?`<div class="tiny" style="margin-top:8px;white-space:pre-wrap;line-height:1.6;">${escapeHtml(p.bio)}</div>`:''}</div></div>${createdChannel?`<div><div style="display:flex;align-items:center;justify-content:space-between;margin:0 0 10px;"><div class="tiny" style="font-size:14px;text-transform:uppercase;">Channel</div><div class="tiny">${subsCount.toLocaleString('ru-RU')} subscribers</div></div><div class="channel-preview-card" data-open-channel="${createdChannel.id}">${avatarHTML(p)}<div><div class="item-name">${escapeHtml(createdChannel.title||'Канал')}</div><div class="tiny">${escapeHtml(createdChannel.description||'Канал владельца профиля')}</div></div><div class="tiny">›</div></div></div>`:''}${userId===state.user.id?`<div class="profile-public-card"><div style="font-size:15px;color:#cfd3d8;font-weight:800;margin-bottom:12px;">NFT подарки</div><div style="display:flex;flex-wrap:wrap;gap:10px;">${gifts.length?gifts.map(g=>`<span class=\"wallet-badge\">${escapeHtml(g.emoji)} ${escapeHtml(g.title)}</span>`).join(''):'<span class=\"tiny\">NFT подарков пока нет</span>'}</div></div>`:''}${userId!==state.user.id?`<div style="margin-top:4px;"><button id="profileBlockBtn" class="btn btn-danger">${blocked?'Разблокировать':'Блокировать'}</button></div>`:''}</div></div>`;showModal('viewProfileModal');const btn=document.getElementById('profileBlockBtn');if(btn)btn.addEventListener('click',toggleBlockUser);document.querySelectorAll('#viewProfileModal [data-close="viewProfileModal"]').forEach(x=>x.addEventListener('click',closeModals));closeMenu()}
+    function openProfileView(userId){const p=state.profilesMap.get(userId);if(!p)return;const warning=PREFIX_BY_USERNAME[p.username?.toLowerCase?.()]?.notice;const blocked=state.blockedSet.has(userId);const createdChannel=state.channels.find(c=>c.owner_id===userId)||null;const subsCount=createdChannel?(state.channelSubsMap.get(createdChannel.id)||[]).length:0;
+      // Build gifts list: for own profile show all owned gifts; for others show their activeGift if any
+      let gifts=[];
+      if(userId===state.user.id){
+        const ownedGiftIds=new Set(state.wallet.ownedGifts);
+        if(state.wallet.activeGift)ownedGiftIds.add(state.wallet.activeGift);
+        gifts=[...ownedGiftIds].map(id=>SHOP_GIFTS.find(x=>x.id===id)).filter(Boolean);
+      } else {
+        // For other users we can't see their wallet, but if their profile has a gift badge show it
+        const activeGift=state.wallet.activeGift&&userId===state.user.id?SHOP_GIFTS.find(x=>x.id===state.wallet.activeGift):null;
+        if(activeGift)gifts=[activeGift];
+      }
+      const giftNodes=(gifts.length?gifts.slice(0,6):[]).map((g,i)=>`<div class="floating-gift g${i+1}">${escapeHtml(g.emoji)}</div>`).join('');els.viewProfileContent.innerHTML=`<div class="profile-public"><div class="profile-hero" style="${coverStyle(p)}"><button class="profile-back-btn" data-close="viewProfileModal">‹</button><div class="profile-hero-inner"><div><div class="profile-avatar-stage"><div class="profile-avatar-center">${avatarHTML(p,'big')}</div>${giftNodes}</div><div class="profile-public-name">${nameWithDecor(p,'User')}</div><div class="profile-public-status">${escapeHtml(displayHandle(p))}</div>${warning?`<div style="margin:16px auto 0;max-width:760px;padding:12px 14px;border-radius:14px;border:1px solid #ff6a6a;background:rgba(255,0,0,.08);color:#ffb0b0;line-height:1.55;">${escapeHtml(warning)}</div>`:''}</div></div></div><div class="profile-public-grid"><div class="profile-public-card"><div style="font-size:15px;color:#cfd3d8;font-weight:800;margin-bottom:10px;">username</div><div class="username-box"><div style="font-size:22px;color:#3557ff;font-weight:900;">${escapeHtml(displayHandle(p))}</div>${p.bio?`<div class="tiny" style="margin-top:8px;white-space:pre-wrap;line-height:1.6;">${escapeHtml(p.bio)}</div>`:''}</div></div>${createdChannel?`<div><div style="display:flex;align-items:center;justify-content:space-between;margin:0 0 10px;"><div class="tiny" style="font-size:14px;text-transform:uppercase;">Channel</div><div class="tiny">${subsCount.toLocaleString('ru-RU')} subscribers</div></div><div class="channel-preview-card" data-open-channel="${createdChannel.id}">${avatarHTML(p)}<div><div class="item-name">${escapeHtml(createdChannel.title||'Канал')}</div><div class="tiny">${escapeHtml(createdChannel.description||'Канал владельца профиля')}</div></div><div class="tiny">›</div></div></div>`:''}${userId===state.user.id?`<div class="profile-public-card"><div style="font-size:15px;color:#cfd3d8;font-weight:800;margin-bottom:12px;">NFT подарки</div><div style="display:flex;flex-wrap:wrap;gap:10px;">${gifts.length?gifts.map(g=>`<span class=\"wallet-badge\">${escapeHtml(g.emoji)} ${escapeHtml(g.title)}</span>`).join(''):'<span class=\"tiny\">NFT подарков пока нет</span>'}</div></div>`:''}${userId!==state.user.id?`<div style="margin-top:4px;"><button id="profileBlockBtn" class="btn btn-danger">${blocked?'Разблокировать':'Блокировать'}</button></div>`:''}</div></div>`;showModal('viewProfileModal');const btn=document.getElementById('profileBlockBtn');if(btn)btn.addEventListener('click',toggleBlockUser);document.querySelectorAll('#viewProfileModal [data-close="viewProfileModal"]').forEach(x=>x.addEventListener('click',closeModals));closeMenu()}
 
 
     function renderWalletUi(){
@@ -701,7 +717,7 @@
       toast(`Подарок ${item.title} применён`);
     }
 
-    function bindStaticEvents(){els.registerTab.addEventListener('click',()=>setAuthTab('register'));els.loginTab.addEventListener('click',()=>setAuthTab('login'));els.registerBtn.addEventListener('click',registerUser);els.loginBtn.addEventListener('click',loginUser);els.chatSearch.addEventListener('input',()=>{state.activeMode==='chats'?renderChatList():renderChannelList()});els.newActionBtn.addEventListener('click',()=>state.activeMode==='chats'?openNewChatModal():openNewChannelModal());els.menuBtn.addEventListener('click',openMenu);els.menuOverlay.addEventListener('click',closeMenu);els.menuProfile.addEventListener('click',()=>{fillProfileForm();showModal('profileModal');closeMenu()});els.menuWallet.addEventListener('click',openWallet);els.menuShop.addEventListener('click',openNftShop);els.menuNewChat.addEventListener('click',openNewChatModal);els.menuNewChannel.addEventListener('click',openNewChannelModal);els.menuLogout.addEventListener('click',logoutUser);els.modeChatsBtn.addEventListener('click',()=>setMode('chats'));els.modeChannelsBtn.addEventListener('click',()=>setMode('channels'));els.activeProfileChip.addEventListener('click',()=>{if(state.activeProfileUserId)openProfileView(state.activeProfileUserId)});els.mobileBackBtn.addEventListener('click',e=>{e.stopPropagation();document.body.classList.remove('mobile-chat-open');state.activeChatId=null;state.activeChannelId=null;renderEmpty()});els.channelSubscribeBtn.addEventListener('click',toggleChannelSubscription);els.channelManageBtn.addEventListener('click',openChannelManage);els.messageInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessageOrPost()}});els.sendBtn.addEventListener('click',sendMessageOrPost);els.userSearch.addEventListener('input',renderUserList);els.createChannelBtn.addEventListener('click',createChannel);els.saveProfileBtn.addEventListener('click',saveProfile);els.walletOpenProfile.addEventListener('click',()=>{closeModals();fillProfileForm();showModal('profileModal')});els.walletOpenShop.addEventListener('click',()=>{closeModals();openNftShop()});document.querySelectorAll('[data-close]').forEach(btn=>btn.addEventListener('click',closeModals));document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModals()}));els.chatList.addEventListener('click',async e=>{const item=e.target.closest('[data-chat-id]');if(!item)return;await openChat(item.dataset.chatId)});els.channelList.addEventListener('click',async e=>{const item=e.target.closest('[data-channel-id]');if(!item)return;await openChannel(item.dataset.channelId)});els.userList.addEventListener('click',async e=>{const btn=e.target.closest('[data-start-chat]');if(!btn)return;await startDirectChat(btn.dataset.startChat)});els.messagesWrap.addEventListener('click',async e=>{const btn=e.target.closest('[data-react-post]');if(btn)await reactToPost(btn.dataset.reactPost,btn.dataset.reaction);const adminBtn=e.target.closest('[data-toggle-admin]');if(adminBtn)await toggleAdmin(adminBtn.dataset.toggleAdmin)});document.body.addEventListener('click',e=>{const bgBtn=e.target.closest('[data-buy-bg]');if(bgBtn)buyBackgroundLocal(bgBtn.dataset.buyBg);const giftBtn=e.target.closest('[data-buy-gift]');if(giftBtn)buyGiftLocal(giftBtn.dataset.buyGift);const ch=e.target.closest('[data-open-channel]');if(ch){closeModals();openChannel(ch.dataset.openChannel);} });els.channelSubscribeBottomBtn.addEventListener('click',toggleChannelSubscription)}
+    function bindStaticEvents(){els.registerTab.addEventListener('click',()=>setAuthTab('register'));els.loginTab.addEventListener('click',()=>setAuthTab('login'));els.registerBtn.addEventListener('click',registerUser);els.loginBtn.addEventListener('click',loginUser);els.chatSearch.addEventListener('input',()=>{state.activeMode==='chats'?renderChatList():renderChannelList()});els.newActionBtn.addEventListener('click',()=>state.activeMode==='chats'?openNewChatModal():openNewChannelModal());els.menuBtn.addEventListener('click',openMenu);els.menuOverlay.addEventListener('click',closeMenu);els.menuProfile.addEventListener('click',()=>{fillProfileForm();showModal('profileModal');closeMenu()});els.menuWallet.addEventListener('click',openWallet);els.menuShop.addEventListener('click',openNftShop);els.menuNewChat.addEventListener('click',openNewChatModal);els.menuNewChannel.addEventListener('click',openNewChannelModal);els.menuLogout.addEventListener('click',logoutUser);els.modeChatsBtn.addEventListener('click',()=>{setMode('chats');if(!state.activeChatId)renderEmpty()});els.modeChannelsBtn.addEventListener('click',()=>{setMode('channels');if(!state.activeChannelId)renderEmpty()});els.activeProfileChip.addEventListener('click',()=>{if(state.activeProfileUserId)openProfileView(state.activeProfileUserId)});els.mobileBackBtn.addEventListener('click',e=>{e.stopPropagation();document.body.classList.remove('mobile-chat-open');state.activeChatId=null;state.activeChannelId=null;renderEmpty()});els.channelSubscribeBtn.addEventListener('click',toggleChannelSubscription);els.channelManageBtn.addEventListener('click',openChannelManage);els.messageInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessageOrPost()}});els.sendBtn.addEventListener('click',sendMessageOrPost);els.userSearch.addEventListener('input',renderUserList);els.createChannelBtn.addEventListener('click',createChannel);els.saveProfileBtn.addEventListener('click',saveProfile);els.walletOpenProfile.addEventListener('click',()=>{closeModals();fillProfileForm();showModal('profileModal')});els.walletOpenShop.addEventListener('click',()=>{closeModals();openNftShop()});document.querySelectorAll('[data-close]').forEach(btn=>btn.addEventListener('click',closeModals));document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModals()}));els.chatList.addEventListener('click',async e=>{const item=e.target.closest('[data-chat-id]');if(!item)return;await openChat(item.dataset.chatId)});els.channelList.addEventListener('click',async e=>{const item=e.target.closest('[data-channel-id]');if(!item)return;await openChannel(item.dataset.channelId)});els.userList.addEventListener('click',async e=>{const btn=e.target.closest('[data-start-chat]');if(!btn)return;await startDirectChat(btn.dataset.startChat)});els.messagesWrap.addEventListener('click',async e=>{const btn=e.target.closest('[data-react-post]');if(btn)await reactToPost(btn.dataset.reactPost,btn.dataset.reaction);const adminBtn=e.target.closest('[data-toggle-admin]');if(adminBtn)await toggleAdmin(adminBtn.dataset.toggleAdmin)});document.body.addEventListener('click',e=>{const bgBtn=e.target.closest('[data-buy-bg]');if(bgBtn)buyBackgroundLocal(bgBtn.dataset.buyBg);const giftBtn=e.target.closest('[data-buy-gift]');if(giftBtn)buyGiftLocal(giftBtn.dataset.buyGift);const ch=e.target.closest('[data-open-channel]');if(ch){closeModals();openChannel(ch.dataset.openChannel);} });els.channelSubscribeBottomBtn.addEventListener('click',toggleChannelSubscription)}
     function renderEmpty(){els.activeChatAvatar.className='avatar fallback';els.activeChatAvatar.style.background='#2a3b4a';els.activeChatAvatar.textContent='C';els.activeChatTitle.textContent=state.activeMode==='channels'?'Выбери канал':'Выбери чат';els.activeChatSubtitle.textContent='Профиль и сообщения';els.channelSubscribeBtn.classList.add('hidden');els.channelManageBtn.classList.add('hidden');els.messagesWrap.innerHTML=`<div class="empty"><div>${state.activeMode==='channels'?'Выбери канал или создай новый.':'Выбери чат или создай новый.'}</div></div>`;state.activeProfileUserId=null;els.composerWrap.classList.remove('hidden-composer');els.channelSubscribeBottom.classList.remove('show')}
     async function init(){bindStaticEvents();setAuthTab('register');setMode('chats');renderEmpty();const {data,error}=await supabase.auth.getSession();if(error){console.error(error);showAuth();return}if(data.session?.user){state.user=data.session.user;await bootApp()}else showAuth();supabase.auth.onAuthStateChange(async(_event,session)=>{if(session?.user){state.user=session.user;await bootApp()}else showAuth()})}
     init();
