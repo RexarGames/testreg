@@ -578,7 +578,20 @@
     function setStatus(el,text,isError=false){el.textContent=text;el.style.color=isError?'var(--danger)':'var(--muted)'}
     function showModal(id){document.getElementById(id).classList.add('open')} function closeModals(){document.querySelectorAll('.modal').forEach(m=>m.classList.remove('open'))}
     function openMenu(){state.menuOpen=true;els.leftMenu.classList.add('open');els.menuOverlay.classList.add('open')} function closeMenu(){state.menuOpen=false;els.leftMenu.classList.remove('open');els.menuOverlay.classList.remove('open')}
-    const escapeHtml=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+   const escapeHtml=s=>String(s??'')
+  .replace(/&/g,'&amp;')
+  .replace(/</g,'&lt;')
+  .replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;')
+  .replace(/'/g,'&#039;');
+
+function linkify(text){
+  const safe = escapeHtml(text || '');
+  return safe.replace(
+    /(https?:\/\/[^\s<]+)/g,
+    '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:#6ea8ff;text-decoration:underline;">$1</a>'
+  );
+}
     const normalizeUsername=v=>String(v||'').trim().toLowerCase().replace(/[^a-z0-9_]/g,'_').replace(/_+/g,'_').replace(/^_+|_+$/g,'').slice(0,24);
     function prefixBadge(profile){const key=profile?.username?.toLowerCase?.();const p=key?PREFIX_BY_USERNAME[key]:null;if(!p)return '';if(p.type==='fake')return `<span class="fake-badge">${escapeHtml(p.label)}</span>`;return `<span class="prefix-badge">${escapeHtml(p.label)}</span>`}
     function avatarHTML(profile,size='normal'){const emoji=profile?.avatar_emoji?.trim();const bg=profile?.avatar_bg?.trim()||'#2a3b4a';const text=emoji||(profile?.nickname?.trim()?.[0]||profile?.username?.trim()?.[0]||'?');const big=size==='big'?'width:86px;height:86px;min-width:86px;font-size:32px;':'';return `<div class="avatar ${emoji?'':'fallback'}" style="background:${escapeHtml(bg)};${big}">${escapeHtml(text)}</div>`}
