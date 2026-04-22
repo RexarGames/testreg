@@ -8,7 +8,7 @@
     :root {
       --bg: #0e1621;
       --panel: #17212b;
-      --line: #22303d;A
+      --line: #22303d;
       --text: #e6eef6;
       --muted: #8ea1b3;
       --blue: #2aabee;
@@ -146,6 +146,29 @@
     .wallet-price { color:#f6d15a; font-weight:900; }
     .wallet-owned { color:#8bf0a6; font-size:13px; font-weight:800; }
     .wallet-badge { display:inline-flex; padding:4px 9px; border-radius:999px; background:rgba(124,58,237,.18); color:#d6b8ff; font-size:12px; font-weight:800; }
+    .profile-public { display:grid; gap:18px; }
+    .profile-hero { position:relative; min-height:420px; border-radius:18px; overflow:hidden; border:1px solid rgba(255,255,255,.06); }
+    .profile-hero::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.38)); pointer-events:none; }
+    .profile-hero-inner { position:relative; z-index:1; min-height:420px; display:grid; place-items:center; padding:24px; text-align:center; }
+    .profile-back-btn { position:absolute; top:18px; left:18px; width:54px; height:54px; border:none; border-radius:50%; background:rgba(20,22,28,.72); color:#fff; font-size:30px; cursor:pointer; z-index:2; }
+    .profile-avatar-stage { position:relative; width:280px; height:280px; margin:0 auto 18px; }
+    .profile-avatar-center { position:absolute; inset:50% auto auto 50%; transform:translate(-50%,-50%); width:180px; height:180px; min-width:180px; border-radius:50%; background:#fff; display:grid; place-items:center; box-shadow:0 18px 40px rgba(0,0,0,.28); overflow:hidden; }
+    .profile-avatar-center .avatar { width:180px; height:180px; min-width:180px; border-radius:50%; font-size:72px; }
+    .floating-gift { position:absolute; width:52px; height:52px; border-radius:16px; background:rgba(23,24,28,.72); backdrop-filter:blur(6px); display:grid; place-items:center; font-size:30px; box-shadow:0 10px 25px rgba(0,0,0,.22); animation:giftFloat 3.6s ease-in-out infinite; }
+    .floating-gift.g1 { top:20px; left:46px; animation-delay:.1s; }
+    .floating-gift.g2 { top:22px; right:46px; animation-delay:.7s; }
+    .floating-gift.g3 { left:10px; top:118px; animation-delay:1.2s; }
+    .floating-gift.g4 { right:10px; top:118px; animation-delay:1.8s; }
+    .floating-gift.g5 { left:56px; bottom:18px; animation-delay:2.4s; }
+    .floating-gift.g6 { right:56px; bottom:18px; animation-delay:3s; }
+    @keyframes giftFloat { 0%,100%{ transform:translateY(0px) rotate(0deg);} 50%{ transform:translateY(-8px) rotate(2deg);} }
+    .profile-public-name { font-size:58px; font-weight:900; line-height:1.02; letter-spacing:-.04em; }
+    .profile-public-status { color:#d0d3d9; font-size:18px; font-weight:700; margin-top:8px; }
+    .profile-public-grid { display:grid; gap:16px; }
+    .profile-public-card { background:#17191e; border:1px solid rgba(255,255,255,.06); border-radius:18px; padding:20px; }
+    .channel-preview-card { display:grid; grid-template-columns:auto 1fr auto; gap:14px; align-items:center; background:#17191e; border:1px solid rgba(255,255,255,.06); border-radius:18px; padding:16px; }
+    .channel-preview-card .avatar { width:74px; height:74px; min-width:74px; border-radius:50%; font-size:30px; }
+    .username-box { display:grid; gap:6px; }
     @media (max-width:760px){ .wallet-shop-grid{grid-template-columns:1fr;} .wallet-actions{grid-template-columns:1fr;} }
 
   </style>
@@ -338,21 +361,15 @@
         <div class="wallet-balance-card">
           <div class="tiny">Баланс</div>
           <div class="sum"><span id="walletBalanceValue">200</span> ₽</div>
-          <div class="tiny" style="margin-top:8px;">На эти деньги можно покупать фоны и NFT‑подарки для профиля.</div>
+          <div class="tiny" style="margin-top:8px;">На эти деньги можно покупать фоны и NFT‑подарки.</div>
         </div>
         <div class="wallet-actions">
           <button id="walletOpenProfile" class="btn btn-secondary">Открыть профиль</button>
           <button id="walletOpenShop" class="btn btn-primary">Открыть магазин</button>
         </div>
         <div class="user-row" style="border-bottom:none; padding:0;">
-          <div>
-            <div class="item-name">Купленные фоны</div>
-            <div class="tiny" id="walletOwnedBgCount">0</div>
-          </div>
-          <div>
-            <div class="item-name">NFT подарки</div>
-            <div class="tiny" id="walletOwnedGiftCount">0</div>
-          </div>
+          <div><div class="item-name">Купленные фоны</div><div class="tiny" id="walletOwnedBgCount">0</div></div>
+          <div><div class="item-name">NFT подарки</div><div class="tiny" id="walletOwnedGiftCount">0</div></div>
         </div>
       </div>
     </div>
@@ -366,17 +383,11 @@
       </div>
       <div style="display:grid; gap:18px;">
         <div>
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;">
-            <div class="item-name">Фоны профиля</div>
-            <div class="wallet-badge"><span id="walletBalanceBadge">200</span> ₽</div>
-          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;"><div class="item-name">Фоны профиля</div><div class="wallet-badge"><span id="walletBalanceBadge">200</span> ₽</div></div>
           <div id="walletBackgrounds" class="wallet-shop-grid"></div>
         </div>
         <div>
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;">
-            <div class="item-name">NFT подарки</div>
-            <div class="tiny">Подарки можно применять к своему профилю</div>
-          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;"><div class="item-name">NFT подарки</div><div class="tiny">Они будут видны в профиле</div></div>
           <div id="walletGifts" class="wallet-shop-grid"></div>
         </div>
       </div>
@@ -391,7 +402,7 @@
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 
-    const WALLET_KEY = 'dgram_wallet_module_v1';
+    const WALLET_KEY = 'dgram_wallet_module_v2';
     const SHOP_BACKGROUNDS = [
       { id:'bg-default', title:'Default Dark', price:0, css:'linear-gradient(135deg,#1a1b20,#131417)' },
       { id:'bg-violet', title:'Purple Neon', price:60, css:'linear-gradient(135deg,#1e1431,#4c1d95,#0f0f12)' },
@@ -402,7 +413,9 @@
       { id:'gift-star', title:'Star NFT', emoji:'⭐', price:35, bg:'#47310e' },
       { id:'gift-gem', title:'Gem NFT', emoji:'💎', price:50, bg:'#13324a' },
       { id:'gift-dragon', title:'Dragon NFT', emoji:'🐉', price:75, bg:'#2f233f' },
-      { id:'gift-crown', title:'Crown NFT', emoji:'👑', price:90, bg:'#5a4311' }
+      { id:'gift-crown', title:'Crown NFT', emoji:'👑', price:90, bg:'#5a4311' },
+      { id:'gift-rocket', title:'Rocket NFT', emoji:'🚀', price:110, bg:'#1e3a8a' },
+      { id:'gift-scroll', title:'Scroll NFT', emoji:'📜', price:65, bg:'#3f2f1e' }
     ];
     function walletDefault(){ return { balance:200, ownedBackgrounds:['bg-default'], ownedGifts:[], activeBackground:'bg-default', activeGift:null }; }
     function loadWallet(){ try{ return { ...walletDefault(), ...(JSON.parse(localStorage.getItem(WALLET_KEY)||'{}')) }; }catch{return walletDefault()} }
@@ -603,7 +616,7 @@
 
     async function checkForNewMessages(){if(state.activeMode!=='chats')return;try{if(!state.user||!state.chats.length)return;const ids=state.chats.map(c=>c.id);if(!ids.length)return;const since=state.lastMessageSeenAt||new Date().toISOString();const {data,error}=await supabase.from('messages').select('*').in('conversation_id',ids).gt('created_at',since).order('created_at',{ascending:true});if(error)throw error;if(data&&data.length){for(const msg of data){if(msg.sender_id===state.user.id)continue;if(msg.conversation_id!==state.activeChatId){state.unreadCounts[msg.conversation_id]=(state.unreadCounts[msg.conversation_id]||0)+1;const chat=state.chats.find(c=>c.id===msg.conversation_id);toast(`Новое сообщение: ${chat?getChatTitle(chat):'Messenger'}`)}}state.lastMessageSeenAt=data[data.length-1].created_at;renderChatList()}}catch(e){console.error(e)}}
 
-    function openProfileView(userId){const p=state.profilesMap.get(userId);if(!p)return;const warning=PREFIX_BY_USERNAME[p.username?.toLowerCase?.()]?.notice;const blocked=state.blockedSet.has(userId);els.viewProfileContent.innerHTML=`<div class="profile-view"><div class="profile-cover" style="${coverStyle(p)}"></div><div class="profile-main">${avatarHTML(p,'big')}<div><div style="font-size:24px;font-weight:700;">${nameWithDecor(p,'User')}</div><div class="tiny" style="margin-top:6px;">${escapeHtml(displayHandle(p))}</div>${warning?`<div style="margin-top:12px;padding:12px 14px;border-radius:12px;border:1px solid #ff6a6a;background:rgba(255,0,0,.08);color:#ff9f9f;line-height:1.5;">${escapeHtml(warning)}</div>`:''}<div style="margin-top:14px;white-space:pre-wrap;line-height:1.6;">${escapeHtml(p.bio||'Нет описания')}</div>${userId===state.user.id?`<div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:10px;">${state.wallet.ownedGifts.length?state.wallet.ownedGifts.map(id=>{const g=SHOP_GIFTS.find(x=>x.id===id);return `<span class=\"wallet-badge\">${g?g.emoji+' '+g.title:''}</span>`}).join(''):'<span class=\"tiny\">NFT подарков пока нет</span>'}</div>`:''}${userId!==state.user.id?`<div style="margin-top:16px;"><button id="profileBlockBtn" class="btn btn-danger">${blocked?'Разблокировать':'Блокировать'}</button></div>`:''}</div></div></div>`;showModal('viewProfileModal');const btn=document.getElementById('profileBlockBtn');if(btn)btn.addEventListener('click',toggleBlockUser);closeMenu()}
+    function openProfileView(userId){const p=state.profilesMap.get(userId);if(!p)return;const warning=PREFIX_BY_USERNAME[p.username?.toLowerCase?.()]?.notice;const blocked=state.blockedSet.has(userId);const createdChannel=state.channels.find(c=>c.owner_id===userId)||null;const subsCount=createdChannel?(state.channelSubsMap.get(createdChannel.id)||[]).length:0;const gifts=userId===state.user.id?state.wallet.ownedGifts.map(id=>SHOP_GIFTS.find(x=>x.id===id)).filter(Boolean):[];const giftNodes=(gifts.length?gifts.slice(0,6):[]).map((g,i)=>`<div class="floating-gift g${i+1}">${escapeHtml(g.emoji)}</div>`).join('');els.viewProfileContent.innerHTML=`<div class="profile-public"><div class="profile-hero" style="${coverStyle(p)}"><button class="profile-back-btn" data-close="viewProfileModal">‹</button><div class="profile-hero-inner"><div><div class="profile-avatar-stage"><div class="profile-avatar-center">${avatarHTML(p,'big')}</div>${giftNodes}</div><div class="profile-public-name">${nameWithDecor(p,'User')}</div><div class="profile-public-status">${escapeHtml(displayHandle(p))}</div>${warning?`<div style="margin:16px auto 0;max-width:760px;padding:12px 14px;border-radius:14px;border:1px solid #ff6a6a;background:rgba(255,0,0,.08);color:#ffb0b0;line-height:1.55;">${escapeHtml(warning)}</div>`:''}</div></div></div><div class="profile-public-grid"><div class="profile-public-card"><div style="font-size:15px;color:#cfd3d8;font-weight:800;margin-bottom:10px;">username</div><div class="username-box"><div style="font-size:22px;color:#3557ff;font-weight:900;">${escapeHtml(displayHandle(p))}</div>${p.bio?`<div class="tiny" style="margin-top:8px;white-space:pre-wrap;line-height:1.6;">${escapeHtml(p.bio)}</div>`:''}</div></div>${createdChannel?`<div><div style="display:flex;align-items:center;justify-content:space-between;margin:0 0 10px;"><div class="tiny" style="font-size:14px;text-transform:uppercase;">Channel</div><div class="tiny">${subsCount.toLocaleString('ru-RU')} subscribers</div></div><div class="channel-preview-card">${avatarHTML(p)}<div><div class="item-name">${escapeHtml(createdChannel.title||'Канал')}</div><div class="tiny">${escapeHtml(createdChannel.description||'Канал владельца профиля')}</div></div><div class="tiny">›</div></div></div>`:''}${userId===state.user.id?`<div class="profile-public-card"><div style="font-size:15px;color:#cfd3d8;font-weight:800;margin-bottom:12px;">NFT подарки</div><div style="display:flex;flex-wrap:wrap;gap:10px;">${gifts.length?gifts.map(g=>`<span class=\"wallet-badge\">${escapeHtml(g.emoji)} ${escapeHtml(g.title)}</span>`).join(''):'<span class=\"tiny\">NFT подарков пока нет</span>'}</div></div>`:''}${userId!==state.user.id?`<div style="margin-top:4px;"><button id="profileBlockBtn" class="btn btn-danger">${blocked?'Разблокировать':'Блокировать'}</button></div>`:''}</div></div>`;showModal('viewProfileModal');const btn=document.getElementById('profileBlockBtn');if(btn)btn.addEventListener('click',toggleBlockUser);document.querySelectorAll('#viewProfileModal [data-close="viewProfileModal"]').forEach(x=>x.addEventListener('click',closeModals));closeMenu()}
 
 
     function renderWalletUi(){
@@ -626,7 +639,6 @@
       if(bg && state.myProfile){ state.myProfile.profile_cover = bg.css; }
       const gift = SHOP_GIFTS.find(x=>x.id===state.wallet.activeGift);
       if(gift && state.myProfile){ state.myProfile.avatar_emoji = gift.emoji; state.myProfile.avatar_bg = gift.bg; }
-      renderSelf();
     }
     function openWallet(){ renderWalletUi(); showModal('walletModal'); closeMenu(); }
     function openNftShop(){ renderWalletUi(); showModal('nftShopModal'); closeMenu(); }
@@ -640,6 +652,7 @@
       state.wallet.activeBackground = id;
       saveWallet();
       applyWalletAppearance();
+      renderSelf();
       renderWalletUi();
       toast(`Фон ${item.title} применён`);
     }
@@ -653,6 +666,7 @@
       state.wallet.activeGift = id;
       saveWallet();
       applyWalletAppearance();
+      renderSelf();
       renderWalletUi();
       toast(`Подарок ${item.title} применён`);
     }
