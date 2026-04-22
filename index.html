@@ -8,7 +8,7 @@
     :root {
       --bg: #0e1621;
       --panel: #17212b;
-      --line: #22303d;
+      --line: #22303d;A
       --text: #e6eef6;
       --muted: #8ea1b3;
       --blue: #2aabee;
@@ -134,6 +134,20 @@
       .field-row, .row, .color-row { grid-template-columns:1fr; }
       .profile-main { grid-template-columns:1fr; }
     }
+  
+    .wallet-grid { display:grid; gap:16px; }
+    .wallet-balance-card { padding:18px; border-radius:18px; background:linear-gradient(135deg,#1f2130,#171923); border:1px solid rgba(255,255,255,.06); }
+    .wallet-balance-card .sum { font-size:46px; font-weight:900; letter-spacing:-.04em; }
+    .wallet-actions { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+    .wallet-actions .btn { width:100%; }
+    .wallet-shop-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .wallet-card { padding:14px; border-radius:18px; background:#1a1d24; border:1px solid rgba(255,255,255,.06); display:grid; gap:12px; }
+    .wallet-preview { height:110px; border-radius:14px; border:1px solid rgba(255,255,255,.06); display:grid; place-items:center; font-size:54px; }
+    .wallet-price { color:#f6d15a; font-weight:900; }
+    .wallet-owned { color:#8bf0a6; font-size:13px; font-weight:800; }
+    .wallet-badge { display:inline-flex; padding:4px 9px; border-radius:999px; background:rgba(124,58,237,.18); color:#d6b8ff; font-size:12px; font-weight:800; }
+    @media (max-width:760px){ .wallet-shop-grid{grid-template-columns:1fr;} .wallet-actions{grid-template-columns:1fr;} }
+
   </style>
 </head>
 <body>
@@ -151,6 +165,8 @@
     </div>
     <div class="menu-list">
       <div id="menuProfile" class="menu-item">👤 <span>Мой профиль</span></div>
+      <div id="menuWallet" class="menu-item">💳 <span>Кошелёк</span></div>
+      <div id="menuShop" class="menu-item">🎁 <span>NFT подарки</span></div>
       <div id="menuNewChat" class="menu-item">💬 <span>Новый чат</span></div>
       <div id="menuNewChannel" class="menu-item">📢 <span>Новый канал</span></div>
       <div id="menuLogout" class="menu-item">🚪 <span>Выйти</span></div>
@@ -311,12 +327,86 @@
     </div>
   </div>
 
+
+  <div id="walletModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 style="margin:0;">Кошелёк</h2>
+        <button class="btn btn-secondary" data-close="walletModal">Закрыть</button>
+      </div>
+      <div class="wallet-grid">
+        <div class="wallet-balance-card">
+          <div class="tiny">Баланс</div>
+          <div class="sum"><span id="walletBalanceValue">200</span> ₽</div>
+          <div class="tiny" style="margin-top:8px;">На эти деньги можно покупать фоны и NFT‑подарки для профиля.</div>
+        </div>
+        <div class="wallet-actions">
+          <button id="walletOpenProfile" class="btn btn-secondary">Открыть профиль</button>
+          <button id="walletOpenShop" class="btn btn-primary">Открыть магазин</button>
+        </div>
+        <div class="user-row" style="border-bottom:none; padding:0;">
+          <div>
+            <div class="item-name">Купленные фоны</div>
+            <div class="tiny" id="walletOwnedBgCount">0</div>
+          </div>
+          <div>
+            <div class="item-name">NFT подарки</div>
+            <div class="tiny" id="walletOwnedGiftCount">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="nftShopModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 style="margin:0;">NFT подарки и фоны</h2>
+        <button class="btn btn-secondary" data-close="nftShopModal">Закрыть</button>
+      </div>
+      <div style="display:grid; gap:18px;">
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;">
+            <div class="item-name">Фоны профиля</div>
+            <div class="wallet-badge"><span id="walletBalanceBadge">200</span> ₽</div>
+          </div>
+          <div id="walletBackgrounds" class="wallet-shop-grid"></div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;">
+            <div class="item-name">NFT подарки</div>
+            <div class="tiny">Подарки можно применять к своему профилю</div>
+          </div>
+          <div id="walletGifts" class="wallet-shop-grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
     const SUPABASE_URL = "https://tsfjqtdoxfmxadxuivpg.supabase.co";
     const SUPABASE_KEY = "sb_publishable_yXZd7wd5aVNpuxjt7-ax8g_aejudNte";
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+
+    const WALLET_KEY = 'dgram_wallet_module_v1';
+    const SHOP_BACKGROUNDS = [
+      { id:'bg-default', title:'Default Dark', price:0, css:'linear-gradient(135deg,#1a1b20,#131417)' },
+      { id:'bg-violet', title:'Purple Neon', price:60, css:'linear-gradient(135deg,#1e1431,#4c1d95,#0f0f12)' },
+      { id:'bg-gold', title:'Gold Night', price:80, css:'linear-gradient(135deg,#17110a,#5a4311,#111214)' },
+      { id:'bg-blue', title:'Blue Pulse', price:70, css:'linear-gradient(135deg,#0e1835,#1d4ed8,#101217)' }
+    ];
+    const SHOP_GIFTS = [
+      { id:'gift-star', title:'Star NFT', emoji:'⭐', price:35, bg:'#47310e' },
+      { id:'gift-gem', title:'Gem NFT', emoji:'💎', price:50, bg:'#13324a' },
+      { id:'gift-dragon', title:'Dragon NFT', emoji:'🐉', price:75, bg:'#2f233f' },
+      { id:'gift-crown', title:'Crown NFT', emoji:'👑', price:90, bg:'#5a4311' }
+    ];
+    function walletDefault(){ return { balance:200, ownedBackgrounds:['bg-default'], ownedGifts:[], activeBackground:'bg-default', activeGift:null }; }
+    function loadWallet(){ try{ return { ...walletDefault(), ...(JSON.parse(localStorage.getItem(WALLET_KEY)||'{}')) }; }catch{return walletDefault()} }
+    function saveWallet(){ localStorage.setItem(WALLET_KEY, JSON.stringify(state.wallet)); }
 
     const PREFIX_BY_USERNAME = {
       link: { type: 'mod', label: 'M' },
@@ -343,6 +433,7 @@
       unreadCounts: {},
       lastMessageSeenAt: null,
       menuOpen: false,
+      wallet: loadWallet(),
       messagesLoadToken: 0,
       postsLoadToken: 0,
       booting: false,
@@ -377,6 +468,8 @@
       menuName: document.getElementById('menuName'),
       menuUsername: document.getElementById('menuUsername'),
       menuProfile: document.getElementById('menuProfile'),
+      menuWallet: document.getElementById('menuWallet'),
+      menuShop: document.getElementById('menuShop'),
       menuNewChat: document.getElementById('menuNewChat'),
       menuNewChannel: document.getElementById('menuNewChannel'),
       menuLogout: document.getElementById('menuLogout'),
@@ -406,6 +499,17 @@
       profileAvatarEmoji: document.getElementById('profileAvatarEmoji'),
       profileAvatarBg: document.getElementById('profileAvatarBg'),
       profileCover: document.getElementById('profileCover'),
+      saveProfileBtn: document.getElementById('saveProfileBtn'),
+      walletModal: document.getElementById('walletModal'),
+      nftShopModal: document.getElementById('nftShopModal'),
+      walletBalanceValue: document.getElementById('walletBalanceValue'),
+      walletBalanceBadge: document.getElementById('walletBalanceBadge'),
+      walletOwnedBgCount: document.getElementById('walletOwnedBgCount'),
+      walletOwnedGiftCount: document.getElementById('walletOwnedGiftCount'),
+      walletBackgrounds: document.getElementById('walletBackgrounds'),
+      walletGifts: document.getElementById('walletGifts'),
+      walletOpenProfile: document.getElementById('walletOpenProfile'),
+      walletOpenShop: document.getElementById('walletOpenShop'),
       saveProfileBtn: document.getElementById('saveProfileBtn'),
       viewProfileModal: document.getElementById('viewProfileModal'),
       viewProfileContent: document.getElementById('viewProfileContent'),
@@ -450,7 +554,7 @@
     async function loadProfiles(){const {data,error}=await supabase.from('profiles').select('*').order('nickname',{ascending:true});if(error)throw error;state.profiles=data||[];state.profilesMap=new Map(state.profiles.map(p=>[p.user_id,p]));state.myProfile=state.profilesMap.get(state.user.id)||state.myProfile}
     async function loadBlocks(){const {data,error}=await supabase.from('blocked_users').select('*').or(`blocker_id.eq.${state.user.id},blocked_user_id.eq.${state.user.id}`);if(error)return;state.blockedSet=new Set();state.blockedBySet=new Set();(data||[]).forEach(r=>{if(r.blocker_id===state.user.id)state.blockedSet.add(r.blocked_user_id);if(r.blocked_user_id===state.user.id)state.blockedBySet.add(r.blocker_id)})}
     function renderSelf(){els.menuAvatar.outerHTML=avatarHTML(state.myProfile);const newAvatar=els.leftMenu.querySelector('.avatar');newAvatar.id='menuAvatar';els.menuAvatar=newAvatar;els.menuName.innerHTML=nameWithDecor(state.myProfile,'Me');els.menuUsername.textContent=displayHandle(state.myProfile)}
-    async function bootApp(){try{if(state.booting)return;state.booting=true;stopPolling();showApp();await ensureMyProfile();await loadProfiles();await loadBlocks();renderSelf();fillProfileForm();await loadChats(true);await loadChannels();if(!state.lastMessageSeenAt)state.lastMessageSeenAt=new Date().toISOString();startPolling()}finally{state.booting=false}}
+    async function bootApp(){try{if(state.booting)return;state.booting=true;stopPolling();showApp();await ensureMyProfile();await loadProfiles();await loadBlocks();applyWalletAppearance();renderSelf();fillProfileForm();await loadChats(true);await loadChannels();if(!state.lastMessageSeenAt)state.lastMessageSeenAt=new Date().toISOString();startPolling()}finally{state.booting=false}}
     function fillProfileForm(){els.profileNickname.value=state.myProfile?.nickname||'';els.profileUsername.value=state.myProfile?.username||'';els.profileBio.value=state.myProfile?.bio||'';els.profileEmail.value=state.user?.email||'';els.profileAvatarEmoji.value=state.myProfile?.avatar_emoji||'';els.profileAvatarBg.value=state.myProfile?.avatar_bg||'#2a3b4a';els.profileCover.value=state.myProfile?.profile_cover||''}
     async function saveProfile(){if(state.busyProfileSave)return;state.busyProfileSave=true;els.saveProfileBtn.disabled=true;try{const username=normalizeUsername(els.profileUsername.value||els.profileNickname.value);if(await isUsernameTaken(username,state.user.id)){toast('Этот username уже занят');return}const payload={user_id:state.user.id,nickname:els.profileNickname.value.trim()||'User',username,bio:els.profileBio.value.trim(),avatar_emoji:els.profileAvatarEmoji.value.trim(),avatar_bg:els.profileAvatarBg.value||'#2a3b4a',profile_cover:els.profileCover.value.trim(),updated_at:new Date().toISOString()};const {data,error}=await supabase.from('profiles').upsert(payload).select().single();if(error)throw error;state.myProfile=data;await loadProfiles();renderSelf();fillProfileForm();await loadChats(false);if(state.activeChatId)await loadMessages(state.activeChatId,false);closeModals();toast('Профиль сохранён')}catch(e){console.error(e);toast('Ошибка сохранения профиля')}finally{state.busyProfileSave=false;els.saveProfileBtn.disabled=false}}
 
@@ -499,9 +603,61 @@
 
     async function checkForNewMessages(){if(state.activeMode!=='chats')return;try{if(!state.user||!state.chats.length)return;const ids=state.chats.map(c=>c.id);if(!ids.length)return;const since=state.lastMessageSeenAt||new Date().toISOString();const {data,error}=await supabase.from('messages').select('*').in('conversation_id',ids).gt('created_at',since).order('created_at',{ascending:true});if(error)throw error;if(data&&data.length){for(const msg of data){if(msg.sender_id===state.user.id)continue;if(msg.conversation_id!==state.activeChatId){state.unreadCounts[msg.conversation_id]=(state.unreadCounts[msg.conversation_id]||0)+1;const chat=state.chats.find(c=>c.id===msg.conversation_id);toast(`Новое сообщение: ${chat?getChatTitle(chat):'Messenger'}`)}}state.lastMessageSeenAt=data[data.length-1].created_at;renderChatList()}}catch(e){console.error(e)}}
 
-    function openProfileView(userId){const p=state.profilesMap.get(userId);if(!p)return;const warning=PREFIX_BY_USERNAME[p.username?.toLowerCase?.()]?.notice;const blocked=state.blockedSet.has(userId);els.viewProfileContent.innerHTML=`<div class="profile-view"><div class="profile-cover" style="${coverStyle(p)}"></div><div class="profile-main">${avatarHTML(p,'big')}<div><div style="font-size:24px;font-weight:700;">${nameWithDecor(p,'User')}</div><div class="tiny" style="margin-top:6px;">${escapeHtml(displayHandle(p))}</div>${warning?`<div style="margin-top:12px;padding:12px 14px;border-radius:12px;border:1px solid #ff6a6a;background:rgba(255,0,0,.08);color:#ff9f9f;line-height:1.5;">${escapeHtml(warning)}</div>`:''}<div style="margin-top:14px;white-space:pre-wrap;line-height:1.6;">${escapeHtml(p.bio||'Нет описания')}</div>${userId!==state.user.id?`<div style="margin-top:16px;"><button id="profileBlockBtn" class="btn btn-danger">${blocked?'Разблокировать':'Блокировать'}</button></div>`:''}</div></div></div>`;showModal('viewProfileModal');const btn=document.getElementById('profileBlockBtn');if(btn)btn.addEventListener('click',toggleBlockUser);closeMenu()}
+    function openProfileView(userId){const p=state.profilesMap.get(userId);if(!p)return;const warning=PREFIX_BY_USERNAME[p.username?.toLowerCase?.()]?.notice;const blocked=state.blockedSet.has(userId);els.viewProfileContent.innerHTML=`<div class="profile-view"><div class="profile-cover" style="${coverStyle(p)}"></div><div class="profile-main">${avatarHTML(p,'big')}<div><div style="font-size:24px;font-weight:700;">${nameWithDecor(p,'User')}</div><div class="tiny" style="margin-top:6px;">${escapeHtml(displayHandle(p))}</div>${warning?`<div style="margin-top:12px;padding:12px 14px;border-radius:12px;border:1px solid #ff6a6a;background:rgba(255,0,0,.08);color:#ff9f9f;line-height:1.5;">${escapeHtml(warning)}</div>`:''}<div style="margin-top:14px;white-space:pre-wrap;line-height:1.6;">${escapeHtml(p.bio||'Нет описания')}</div>${userId===state.user.id?`<div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:10px;">${state.wallet.ownedGifts.length?state.wallet.ownedGifts.map(id=>{const g=SHOP_GIFTS.find(x=>x.id===id);return `<span class=\"wallet-badge\">${g?g.emoji+' '+g.title:''}</span>`}).join(''):'<span class=\"tiny\">NFT подарков пока нет</span>'}</div>`:''}${userId!==state.user.id?`<div style="margin-top:16px;"><button id="profileBlockBtn" class="btn btn-danger">${blocked?'Разблокировать':'Блокировать'}</button></div>`:''}</div></div></div>`;showModal('viewProfileModal');const btn=document.getElementById('profileBlockBtn');if(btn)btn.addEventListener('click',toggleBlockUser);closeMenu()}
 
-    function bindStaticEvents(){els.registerTab.addEventListener('click',()=>setAuthTab('register'));els.loginTab.addEventListener('click',()=>setAuthTab('login'));els.registerBtn.addEventListener('click',registerUser);els.loginBtn.addEventListener('click',loginUser);els.chatSearch.addEventListener('input',()=>{state.activeMode==='chats'?renderChatList():renderChannelList()});els.newActionBtn.addEventListener('click',()=>state.activeMode==='chats'?openNewChatModal():openNewChannelModal());els.menuBtn.addEventListener('click',openMenu);els.menuOverlay.addEventListener('click',closeMenu);els.menuProfile.addEventListener('click',()=>{fillProfileForm();showModal('profileModal');closeMenu()});els.menuNewChat.addEventListener('click',openNewChatModal);els.menuNewChannel.addEventListener('click',openNewChannelModal);els.menuLogout.addEventListener('click',logoutUser);els.modeChatsBtn.addEventListener('click',()=>setMode('chats'));els.modeChannelsBtn.addEventListener('click',()=>setMode('channels'));els.activeProfileChip.addEventListener('click',()=>{if(state.activeProfileUserId)openProfileView(state.activeProfileUserId)});els.mobileBackBtn.addEventListener('click',e=>{e.stopPropagation();document.body.classList.remove('mobile-chat-open');state.activeChatId=null;state.activeChannelId=null;renderEmpty()});els.refreshBtn.addEventListener('click',async()=>{if(state.activeMode==='chats'){await loadChats(false);if(state.activeChatId)await loadMessages(state.activeChatId,false)}else{await loadChannels();if(state.activeChannelId)await loadChannelPosts(state.activeChannelId,false)}toast('Обновлено')});els.channelSubscribeBtn.addEventListener('click',toggleChannelSubscription);els.channelManageBtn.addEventListener('click',openChannelManage);els.blockUserBtn.addEventListener('click',toggleBlockUser);els.messageInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessageOrPost()}});els.sendBtn.addEventListener('click',sendMessageOrPost);els.userSearch.addEventListener('input',renderUserList);els.createChannelBtn.addEventListener('click',createChannel);els.saveProfileBtn.addEventListener('click',saveProfile);document.querySelectorAll('[data-close]').forEach(btn=>btn.addEventListener('click',closeModals));document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModals()}));els.chatList.addEventListener('click',async e=>{const item=e.target.closest('[data-chat-id]');if(!item)return;await openChat(item.dataset.chatId)});els.channelList.addEventListener('click',async e=>{const item=e.target.closest('[data-channel-id]');if(!item)return;await openChannel(item.dataset.channelId)});els.userList.addEventListener('click',async e=>{const btn=e.target.closest('[data-start-chat]');if(!btn)return;await startDirectChat(btn.dataset.startChat)});els.messagesWrap.addEventListener('click',async e=>{const btn=e.target.closest('[data-react-post]');if(btn)await reactToPost(btn.dataset.reactPost,btn.dataset.reaction);const adminBtn=e.target.closest('[data-toggle-admin]');if(adminBtn)await toggleAdmin(adminBtn.dataset.toggleAdmin)})}
+
+    function renderWalletUi(){
+      els.walletBalanceValue.textContent = Math.floor(state.wallet.balance);
+      els.walletBalanceBadge.textContent = Math.floor(state.wallet.balance);
+      els.walletOwnedBgCount.textContent = `${state.wallet.ownedBackgrounds.length} шт.`;
+      els.walletOwnedGiftCount.textContent = `${state.wallet.ownedGifts.length} шт.`;
+      els.walletBackgrounds.innerHTML = SHOP_BACKGROUNDS.map(item=>{
+        const owned = state.wallet.ownedBackgrounds.includes(item.id);
+        const active = state.wallet.activeBackground===item.id;
+        return `<div class="wallet-card"><div class="wallet-preview" style="background:${escapeHtml(item.css)}"></div><div class="item-name">${escapeHtml(item.title)}</div><div class="wallet-price">${item.price} ₽</div>${owned?`<div class="wallet-owned">${active?'Активен':'Уже куплен'}</div>`:''}<button class="btn ${owned?'btn-secondary':'btn-primary'}" data-buy-bg="${item.id}">${owned?(active?'Используется':'Применить'):'Купить'}</button></div>`;
+      }).join('');
+      els.walletGifts.innerHTML = SHOP_GIFTS.map(item=>{
+        const owned = state.wallet.ownedGifts.includes(item.id);
+        return `<div class="wallet-card"><div class="wallet-preview">${escapeHtml(item.emoji)}</div><div class="item-name">${escapeHtml(item.title)}</div><div class="wallet-price">${item.price} ₽</div>${owned?`<div class="wallet-owned">Уже куплен</div>`:''}<button class="btn ${owned?'btn-secondary':'btn-primary'}" data-buy-gift="${item.id}">${owned?'Применить':'Купить'}</button></div>`;
+      }).join('');
+    }
+    function applyWalletAppearance(){
+      const bg = SHOP_BACKGROUNDS.find(x=>x.id===state.wallet.activeBackground);
+      if(bg && state.myProfile){ state.myProfile.profile_cover = bg.css; }
+      const gift = SHOP_GIFTS.find(x=>x.id===state.wallet.activeGift);
+      if(gift && state.myProfile){ state.myProfile.avatar_emoji = gift.emoji; state.myProfile.avatar_bg = gift.bg; }
+      renderSelf();
+    }
+    function openWallet(){ renderWalletUi(); showModal('walletModal'); closeMenu(); }
+    function openNftShop(){ renderWalletUi(); showModal('nftShopModal'); closeMenu(); }
+    function buyBackgroundLocal(id){
+      const item = SHOP_BACKGROUNDS.find(x=>x.id===id); if(!item) return;
+      if(!state.wallet.ownedBackgrounds.includes(id)){
+        if(state.wallet.balance < item.price){ toast('Недостаточно средств'); return; }
+        state.wallet.balance -= item.price;
+        state.wallet.ownedBackgrounds.push(id);
+      }
+      state.wallet.activeBackground = id;
+      saveWallet();
+      applyWalletAppearance();
+      renderWalletUi();
+      toast(`Фон ${item.title} применён`);
+    }
+    function buyGiftLocal(id){
+      const item = SHOP_GIFTS.find(x=>x.id===id); if(!item) return;
+      if(!state.wallet.ownedGifts.includes(id)){
+        if(state.wallet.balance < item.price){ toast('Недостаточно средств'); return; }
+        state.wallet.balance -= item.price;
+        state.wallet.ownedGifts.push(id);
+      }
+      state.wallet.activeGift = id;
+      saveWallet();
+      applyWalletAppearance();
+      renderWalletUi();
+      toast(`Подарок ${item.title} применён`);
+    }
+
+    function bindStaticEvents(){els.registerTab.addEventListener('click',()=>setAuthTab('register'));els.loginTab.addEventListener('click',()=>setAuthTab('login'));els.registerBtn.addEventListener('click',registerUser);els.loginBtn.addEventListener('click',loginUser);els.chatSearch.addEventListener('input',()=>{state.activeMode==='chats'?renderChatList():renderChannelList()});els.newActionBtn.addEventListener('click',()=>state.activeMode==='chats'?openNewChatModal():openNewChannelModal());els.menuBtn.addEventListener('click',openMenu);els.menuOverlay.addEventListener('click',closeMenu);els.menuProfile.addEventListener('click',()=>{fillProfileForm();showModal('profileModal');closeMenu()});els.menuWallet.addEventListener('click',openWallet);els.menuShop.addEventListener('click',openNftShop);els.menuNewChat.addEventListener('click',openNewChatModal);els.menuNewChannel.addEventListener('click',openNewChannelModal);els.menuLogout.addEventListener('click',logoutUser);els.modeChatsBtn.addEventListener('click',()=>setMode('chats'));els.modeChannelsBtn.addEventListener('click',()=>setMode('channels'));els.activeProfileChip.addEventListener('click',()=>{if(state.activeProfileUserId)openProfileView(state.activeProfileUserId)});els.mobileBackBtn.addEventListener('click',e=>{e.stopPropagation();document.body.classList.remove('mobile-chat-open');state.activeChatId=null;state.activeChannelId=null;renderEmpty()});els.refreshBtn.addEventListener('click',async()=>{if(state.activeMode==='chats'){await loadChats(false);if(state.activeChatId)await loadMessages(state.activeChatId,false)}else{await loadChannels();if(state.activeChannelId)await loadChannelPosts(state.activeChannelId,false)}toast('Обновлено')});els.channelSubscribeBtn.addEventListener('click',toggleChannelSubscription);els.channelManageBtn.addEventListener('click',openChannelManage);els.blockUserBtn.addEventListener('click',toggleBlockUser);els.messageInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessageOrPost()}});els.sendBtn.addEventListener('click',sendMessageOrPost);els.userSearch.addEventListener('input',renderUserList);els.createChannelBtn.addEventListener('click',createChannel);els.saveProfileBtn.addEventListener('click',saveProfile);els.walletOpenProfile.addEventListener('click',()=>{closeModals();fillProfileForm();showModal('profileModal')});els.walletOpenShop.addEventListener('click',()=>{closeModals();openNftShop()});document.querySelectorAll('[data-close]').forEach(btn=>btn.addEventListener('click',closeModals));document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModals()}));els.chatList.addEventListener('click',async e=>{const item=e.target.closest('[data-chat-id]');if(!item)return;await openChat(item.dataset.chatId)});els.channelList.addEventListener('click',async e=>{const item=e.target.closest('[data-channel-id]');if(!item)return;await openChannel(item.dataset.channelId)});els.userList.addEventListener('click',async e=>{const btn=e.target.closest('[data-start-chat]');if(!btn)return;await startDirectChat(btn.dataset.startChat)});els.messagesWrap.addEventListener('click',async e=>{const btn=e.target.closest('[data-react-post]');if(btn)await reactToPost(btn.dataset.reactPost,btn.dataset.reaction);const adminBtn=e.target.closest('[data-toggle-admin]');if(adminBtn)await toggleAdmin(adminBtn.dataset.toggleAdmin)});document.body.addEventListener('click',e=>{const bgBtn=e.target.closest('[data-buy-bg]');if(bgBtn)buyBackgroundLocal(bgBtn.dataset.buyBg);const giftBtn=e.target.closest('[data-buy-gift]');if(giftBtn)buyGiftLocal(giftBtn.dataset.buyGift);})}
     function renderEmpty(){els.activeChatAvatar.className='avatar fallback';els.activeChatAvatar.style.background='#2a3b4a';els.activeChatAvatar.textContent='C';els.activeChatTitle.textContent=state.activeMode==='channels'?'Выбери канал':'Выбери чат';els.activeChatSubtitle.textContent='Профиль и сообщения';els.channelSubscribeBtn.classList.add('hidden');els.channelManageBtn.classList.add('hidden');els.blockUserBtn.classList.add('hidden');els.messagesWrap.innerHTML=`<div class="empty"><div>${state.activeMode==='channels'?'Выбери канал или создай новый.':'Выбери чат или создай новый.'}</div></div>`;state.activeProfileUserId=null}
     async function init(){bindStaticEvents();setAuthTab('register');setMode('chats');renderEmpty();const {data,error}=await supabase.auth.getSession();if(error){console.error(error);showAuth();return}if(data.session?.user){state.user=data.session.user;await bootApp()}else showAuth();supabase.auth.onAuthStateChange(async(_event,session)=>{if(session?.user){state.user=session.user;await bootApp()}else showAuth()})}
     init();
